@@ -139,7 +139,6 @@ class redis::sentinel (
   Optional[Stdlib::Absolutepath] $client_reconfig_script = undef,
   Boolean $require_redis = true,
 ) inherits redis::params {
-
   if $require_redis {
     require 'redis'
   }
