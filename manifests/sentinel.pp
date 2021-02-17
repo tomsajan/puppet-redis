@@ -106,6 +106,7 @@
 #
 # @param require_redis
 #   Require redis base class. If set to false, sentinel is installed without redis server.
+#
 class redis::sentinel (
   Optional[String[1]] $auth_pass = undef,
   Stdlib::Absolutepath $config_file = $redis::params::sentinel_config_file,

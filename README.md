@@ -133,6 +133,15 @@ class { '::redis::sentinel':
 }
 ```
 
+If installation without redis-server is desired, set `require_redis` parameter to false, i.e
+```puppet
+class { '::redis::sentinel':
+  ...
+  require_redis => false,
+  ...
+}
+```
+
 ### Soft dependency
 
 This module requires [camptocamp/systemd](https://forge.puppet.com/camptocamp/systemd) on Puppet versions older than 6.1.0.
