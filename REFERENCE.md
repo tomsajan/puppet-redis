@@ -884,6 +884,18 @@ Data type: `String[1]`
 
 Default value: `$redis::params::minimum_version`
 
+
+##### `copy_config_unless`
+
+Data type: `Optional[String[1]]`
+
+Optional command for the `unless` parameter of the exec statement
+that copies the puppet generated config to the real location.
+Can be used to prevent puppet mangling the current running config.
+
+Default value: ``undef``
+
+
 ### `redis::administration`
 
 As documented in the FAQ and https://redis.io/topics/admin.
@@ -1218,9 +1230,17 @@ Default value: ``undef``
 
 Data type: `Stdlib::Ensure::Service`
 
-
-
 Default value: `'running'`
+
+##### `copy_config_unless`
+
+Data type: `Optional[String[1]]`
+
+Optional command for the `unless` parameter of the exec statement
+that copies the puppet generated config to the real location.
+Can be used to prevent puppet mangling the current running config.
+
+Default value: ``undef``
 
 ##### `require_redis`
 
@@ -1956,6 +1976,16 @@ Data type: `Boolean`
 
 
 Default value: ``true``
+
+##### `copy_config_unless`
+
+Data type: `Optional[String[1]]`
+
+Optional command for the `redis::copy_config_unless` parameter of the exec statement
+that copies the puppet generated config to the real location.
+Can be used to prevent puppet mangling the current running config.
+
+Default value: ``undef``
 
 ## Functions
 
