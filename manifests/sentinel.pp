@@ -103,7 +103,10 @@
 #     down_after => 80000,
 #     log_file   => '/var/log/redis/sentinel.log',
 #   }
-#
+# @param copy_config_unless
+#   Optional command to run to check whether puppet-generated
+#   config should be copied over to the real one used by the service
+#   If commands exists with 0, the config will not be copied.
 class redis::sentinel (
   Optional[String[1]] $auth_pass = undef,
   Stdlib::Absolutepath $config_file = $redis::params::sentinel_config_file,
@@ -134,6 +137,7 @@ class redis::sentinel (
   Stdlib::Absolutepath $working_dir = $redis::params::sentinel_working_dir,
   Optional[Stdlib::Absolutepath] $notification_script = undef,
   Optional[Stdlib::Absolutepath] $client_reconfig_script = undef,
+  Optional[String[1]] $copy_config_unless = undef,
 ) inherits redis::params {
   require 'redis'
 
@@ -156,6 +160,7 @@ class redis::sentinel (
     subscribe   => File[$config_file_orig],
     notify      => Service[$service_name],
     refreshonly => true,
+    unless      => $copy_config_unless,
   }
 
   service { $service_name:

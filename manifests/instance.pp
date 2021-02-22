@@ -193,6 +193,10 @@
 #   Minimum number of slaves master will remain connected with, for another
 #   slave to migrate to a  master which is no longer covered by any slave Only
 #   set if cluster_enabled is true
+# @param copy_config_unless
+#   Optional command to run to check whether puppet-generated
+#   config should be copied over to the real one used by the service
+#   If commands exists with 0, the config will not be copied.
 define redis::instance (
   Boolean $activerehashing                                       = $redis::activerehashing,
   Boolean $aof_load_truncated                                    = $redis::aof_load_truncated,
@@ -281,6 +285,7 @@ define redis::instance (
   Stdlib::Absolutepath $pid_file                                 = "/var/run/redis/redis-server-${name}.pid",
   Variant[Stdlib::Absolutepath, Enum['']] $unixsocket            = "/var/run/redis/redis-server-${name}.sock",
   Stdlib::Absolutepath $workdir                                  = "${redis::workdir}/redis-server-${name}",
+  Optional[String[1]] $copy_config_unless                        = $redis::copy_config_unless,
 ) {
   if $title == 'default' {
     $redis_file_name_orig = $config_file_orig
@@ -356,5 +361,6 @@ define redis::instance (
     path        => '/usr/bin:/bin',
     subscribe   => File[$redis_file_name_orig],
     refreshonly => true,
+    unless      => $copy_config_unless,
   }
 }
