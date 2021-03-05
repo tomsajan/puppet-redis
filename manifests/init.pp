@@ -227,10 +227,10 @@
 #   Only set if cluster_enabled is true
 # @param instances
 #   Iterate through multiple instance configurations
-# @param copy_config_unless
+# @param copy_config_if
 #   Optional command to run to check whether puppet-generated
 #   config should be copied over to the real one used by the service
-#   If commands exists with 0, the config will not be copied.
+#   If commands exists with 0, the config will be copied.
 class redis (
   Boolean $activerehashing                                       = true,
   Boolean $aof_load_truncated                                    = true,
@@ -331,7 +331,7 @@ class redis (
   Boolean $cluster_require_full_coverage                         = true,
   Integer[0] $cluster_migration_barrier                          = 1,
   Hash[String[1], Hash] $instances                               = {},
-  Optional[String[1]] $copy_config_unless                        = undef,
+  Optional[String[1]] $copy_config_if                            = undef,
 ) inherits redis::params {
   if $package_ensure =~ /^([0-9]+:)?[0-9]+\.[0-9]/ {
     if ':' in $package_ensure {

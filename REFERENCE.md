@@ -885,11 +885,11 @@ Data type: `String[1]`
 Default value: `$redis::params::minimum_version`
 
 
-##### `copy_config_unless`
+##### `copy_config_if`
 
 Data type: `Optional[String[1]]`
 
-Optional command for the `unless` parameter of the exec statement
+Optional command for the `onlyif` parameter of the exec statement
 that copies the puppet generated config to the real location.
 Can be used to prevent puppet mangling the current running config.
 
@@ -1232,11 +1232,11 @@ Data type: `Stdlib::Ensure::Service`
 
 Default value: `'running'`
 
-##### `copy_config_unless`
+##### `copy_config_if`
 
 Data type: `Optional[String[1]]`
 
-Optional command for the `unless` parameter of the exec statement
+Optional command for the `onlyif` parameter of the exec statement
 that copies the puppet generated config to the real location.
 Can be used to prevent puppet mangling the current running config.
 
@@ -1977,11 +1977,11 @@ Data type: `Boolean`
 
 Default value: ``true``
 
-##### `copy_config_unless`
+##### `copy_config_if`
 
 Data type: `Optional[String[1]]`
 
-Optional command for the `redis::copy_config_unless` parameter of the exec statement
+Optional command for the `redis::copy_config_if` parameter of the exec statement
 that copies the puppet generated config to the real location.
 Can be used to prevent puppet mangling the current running config.
 
