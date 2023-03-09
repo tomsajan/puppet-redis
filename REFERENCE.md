@@ -1855,13 +1855,13 @@ Data type: `Stdlib::Ensure::Service`
 
 Default value: `'running'`
 
-##### `require_redis`
+##### <a name="-redis--sentinel--require_redis"></a>`require_redis`
 
 Data type: `Boolean`
 
 Require redis base class. If set to false, sentinel is installed without redis server.
 
-Default value: ``true``
+Default value: `true`
 
 ## Defined types
 
