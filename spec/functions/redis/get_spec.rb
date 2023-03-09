@@ -1,14 +1,16 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'mock_redis'
 require 'redis'
 
-REDIS_URL = 'redis://localhost:6379'.freeze
-LOCAL_BROKEN_URL = 'redis://localhost:1234'.freeze
-REMOTE_BROKEN_URL = 'redis://redis.example.com:1234'.freeze
+REDIS_URL = 'redis://localhost:6379'
+LOCAL_BROKEN_URL = 'redis://localhost:1234'
+REMOTE_BROKEN_URL = 'redis://redis.example.com:1234'
 
 describe 'redis::get' do
   context 'should error if connection to remote redis server cannot be made and no default is specified' do
-    it { is_expected.to run.with_params('nonexistent_key', REMOTE_BROKEN_URL).and_raise_error(Puppet::Error, %r{connection to redis server failed - Error connecting to Redis on redis.example.com:1234 \(SocketError\)}) }
+    it { is_expected.to run.with_params('nonexistent_key', REMOTE_BROKEN_URL).and_raise_error(Puppet::Error, %r{connection to redis server failed - getaddrinfo: Name or service not known}) }
   end
 
   context 'should return default value if connection to remote redis server cannot be made and default is specified' do
@@ -16,7 +18,7 @@ describe 'redis::get' do
   end
 
   context 'should error if connection to local redis server cannot be made and no default is specified' do
-    it { is_expected.to run.with_params('nonexistent_key', LOCAL_BROKEN_URL).and_raise_error(Puppet::Error, %r{connection to redis server failed - Error connecting to Redis on localhost:1234}) }
+    it { is_expected.to run.with_params('nonexistent_key', LOCAL_BROKEN_URL).and_raise_error(Puppet::Error, %r{connection to redis server failed - Connection refused - connect\(2\) for 127.0.0.1:1234}) }
   end
 
   context 'should return default value if connection to local redis server cannot be made and default is specified' do
@@ -28,6 +30,7 @@ describe 'redis::get' do
       mr = MockRedis.new
       Redis.stubs(:new).returns(mr)
     end
+
     it { is_expected.to run.with_params('nonexistent_key', REDIS_URL).and_return(nil) }
   end
 
@@ -36,6 +39,7 @@ describe 'redis::get' do
       mr = MockRedis.new
       Redis.stubs(:new).returns(mr)
     end
+
     it { is_expected.to run.with_params('nonexistent_key', REDIS_URL, 'default_value').and_return('default_value') }
   end
 
@@ -45,6 +49,7 @@ describe 'redis::get' do
       Redis.stubs(:new).returns(mr)
       mr.set('key', 'value')
     end
+
     it { is_expected.to run.with_params('key', REDIS_URL).and_return('value') }
   end
 
@@ -54,6 +59,7 @@ describe 'redis::get' do
       Redis.stubs(:new).returns(mr)
       mr.set('key', 'value')
     end
+
     it { is_expected.to run.with_params('key', REDIS_URL, 'default_value').and_return('value') }
   end
 
@@ -76,16 +82,13 @@ describe 'redis::get' do
       mr = MockRedis.new
       Redis.stubs(:new).returns(mr)
     end
+
     [{ 'ha' => 'sh' }, true, 1, %w[an array]].each do |p|
       context "specifing first parameter as <#{p}>" do
         it { is_expected.to run.with_params(p, REDIS_URL).and_raise_error(ArgumentError) }
       end
 
       context "specifing second parameter as <#{p}>" do
-        it { is_expected.to run.with_params('valid', p).and_raise_error(ArgumentError) }
-      end
-
-      context "specifing third parameter as <#{p}>" do
         it { is_expected.to run.with_params('valid', p).and_raise_error(ArgumentError) }
       end
     end

@@ -1,15 +1,33 @@
+# frozen_string_literal: true
+
 require 'spec_helper_acceptance'
 
 describe 'redis::instance example' do
+  # TODO: SELinux
+  # semanage port --add --type redis_port_t --proto tcp 6380-6382
+  # Label /run/redis-server-\d+(/.+)? as redis_var_run_t
+
   instances = [6379, 6380, 6381, 6382]
-  case fact('osfamily')
-  when 'Debian'
-    config_path = '/etc/redis'
-    redis_name = 'redis-server'
-  else
-    config_path = '/etc'
-    redis_name = 'redis'
-  end
+
+  config_path = case fact('os.family')
+                when 'Debian'
+                  '/etc/redis'
+                when 'RedHat'
+                  if fact('os.release.major').to_i >= 9
+                    '/etc/redis'
+                  else
+                    '/etc'
+                  end
+                else
+                  '/etc'
+                end
+
+  redis_name = case fact('os.family')
+               when 'Debian'
+                 'redis-server'
+               else
+                 'redis'
+               end
 
   it 'runs successfully' do
     pp = <<-EOS
@@ -19,6 +37,8 @@ describe 'redis::instance example' do
       default_install => false,
       service_enable  => false,
       service_ensure  => 'stopped',
+      protected_mode  => false,
+      bind            => [],
     }
 
     $listening_ports.each |$port| {
@@ -58,9 +78,6 @@ describe 'redis::instance example' do
 
     describe service("redis-server-#{instance}") do
       it { is_expected.to be_enabled }
-    end
-
-    describe service("redis-server-#{instance}") do
       it { is_expected.to be_running }
     end
 

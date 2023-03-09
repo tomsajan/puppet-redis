@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'redis::instance' do
@@ -16,14 +18,16 @@ describe 'redis::instance' do
       context 'with app2 title' do
         let(:title) { 'app2' }
         let(:config_file) do
-          case facts[:osfamily]
+          case facts[:os]['family']
           when 'RedHat'
-            '/etc/redis-server-app2.conf'
+            if facts[:os]['release']['major'].to_i > 8
+              '/etc/redis/redis-server-app2.conf'
+            else
+              '/etc/redis-server-app2.conf'
+            end
           when 'FreeBSD'
             '/usr/local/etc/redis/redis-server-app2.conf'
-          when 'Debian'
-            '/etc/redis/redis-server-app2.conf'
-          when 'Archlinux'
+          when 'Debian', 'Archlinux'
             '/etc/redis/redis-server-app2.conf'
           end
         end
@@ -33,8 +37,9 @@ describe 'redis::instance' do
             with_content(%r{^bind 127.0.0.1}).
             with_content(%r{^logfile /var/log/redis/redis-server-app2\.log}).
             with_content(%r{^dir /var/lib/redis/redis-server-app2}).
-            with_content(%r{^unixsocket /var/run/redis/redis-server-app2\.sock})
+            with_content(%r{^unixsocket /var/run/redis-server-app2/redis\.sock})
         end
+
         it { is_expected.to contain_file('/var/lib/redis/redis-server-app2') }
 
         it do
@@ -42,7 +47,7 @@ describe 'redis::instance' do
             with_content(%r{ExecStart=/usr/bin/redis-server #{config_file}})
         end
 
-        it { is_expected.to contain_service('redis-server-app2').with_ensure('running').with_enable('true') }
+        it { is_expected.to contain_service('redis-server-app2.service').with_ensure(true).with_enable(true) }
       end
     end
   end

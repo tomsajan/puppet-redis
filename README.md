@@ -102,7 +102,7 @@ class { '::redis':
 }
 ```
 
-On Ubuntu, "chris-lea/redis-server" ppa repo will be added. You can change it by using ppa_repo parameter:
+On Ubuntu, you can use a PPA by using the `ppa_repo` parameter:
 
 ```puppet
 class { '::redis':
@@ -111,7 +111,7 @@ class { '::redis':
 }
 ```
 
-**Warning** note that it requires [puppetlabs/apt](https://forge.puppet.com/puppetlabs/apt) on Ubuntu distros. On Red Hat [puppet/epel](https://forge.puppet.com/puppet/epel) is needed unless the installation is using Software Collections. In that case will install `centos-release-scl-rh` from CentOS extras. For RHEL or other RHEL-derivatives this isn't managed.
+**Warning** note that PPA usage requires [puppetlabs/apt](https://forge.puppet.com/puppetlabs/apt) on Ubuntu distros. On EL7 [puppet/epel](https://forge.puppet.com/puppet/epel) is needed unless the installation is using Software Collections. In that case will install `centos-release-scl-rh` from CentOS extras. For RHEL or other RHEL-derivatives this isn't managed.
 
 ### Redis Sentinel
 
@@ -144,9 +144,9 @@ class { '::redis::sentinel':
 
 ### Soft dependency
 
-This module requires [camptocamp/systemd](https://forge.puppet.com/camptocamp/systemd) on Puppet versions older than 6.1.0.
-
 When managing the repo, it either needs [puppetlabs/apt](https://forge.puppet.com/puppetlabs/apt) or [puppet/epel](https://forge.puppet.com/puppet/epel).
+
+For administration of sysctl it depends on [herculesteam/augeasproviders_sysctl](https://forge.puppet.com/herculesteam/augeasproviders_sysctl).
 
 ## `redis::get()` function
 

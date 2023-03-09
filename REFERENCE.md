@@ -9,13 +9,14 @@
 #### Public Classes
 
 * [`redis`](#redis): This class installs redis
-* [`redis::administration`](#redisadministration): Allows various administrative settings for Redis
-* [`redis::globals`](#redisglobals): Set a global config for Redis
-* [`redis::sentinel`](#redissentinel): Install redis-sentinel
+* [`redis::administration`](#redis--administration): Allows various administrative settings for Redis
+* [`redis::globals`](#redis--globals): Set a global config for Redis
+* [`redis::sentinel`](#redis--sentinel): Install redis-sentinel
 
 #### Private Classes
 
 * `redis::config`: This class provides configuration for Redis.
+* `redis::dnfmodule`: Manage the DNF module
 * `redis::install`: This class installs the application.
 * `redis::params`: This class provides a number of parameters.
 * `redis::preinstall`: Provides anything required by the install class, such as package
@@ -25,16 +26,17 @@ repositories.
 
 ### Defined types
 
-* [`redis::instance`](#redisinstance): Allows the configuration of multiple redis configurations on one machine
+* [`redis::instance`](#redis--instance): Allows the configuration of multiple redis configurations on one machine
 
 ### Functions
 
-* [`redis::get`](#redisget): Returns the value of the key being looked up or `undef` if the key does not exist.
+* [`redis::get`](#redis--get): Returns the value of the key being looked up or `undef` if the key does not exist.
 
 ### Data types
 
-* [`Redis::LogLevel`](#redisloglevel): Specify the server verbosity level.
-* [`Redis::RedisUrl`](#redisredisurl)
+* [`Redis::LogLevel`](#Redis--LogLevel): Specify the server verbosity level.
+* [`Redis::MemoryPolicy`](#Redis--MemoryPolicy): Specify the server maxmemory_policy.
+* [`Redis::RedisUrl`](#Redis--RedisUrl)
 
 ### Tasks
 
@@ -42,7 +44,7 @@ repositories.
 
 ## Classes
 
-### `redis`
+### <a name="redis"></a>`redis`
 
 This class installs redis
 
@@ -81,33 +83,174 @@ class { 'redis':
 
 #### Parameters
 
-The following parameters are available in the `redis` class.
+The following parameters are available in the `redis` class:
 
-##### `activerehashing`
+* [`activerehashing`](#-redis--activerehashing)
+* [`aof_load_truncated`](#-redis--aof_load_truncated)
+* [`aof_rewrite_incremental_fsync`](#-redis--aof_rewrite_incremental_fsync)
+* [`appendfilename`](#-redis--appendfilename)
+* [`appendfsync`](#-redis--appendfsync)
+* [`appendonly`](#-redis--appendonly)
+* [`auto_aof_rewrite_min_size`](#-redis--auto_aof_rewrite_min_size)
+* [`auto_aof_rewrite_percentage`](#-redis--auto_aof_rewrite_percentage)
+* [`bind`](#-redis--bind)
+* [`bin_path`](#-redis--bin_path)
+* [`config_dir`](#-redis--config_dir)
+* [`config_dir_mode`](#-redis--config_dir_mode)
+* [`config_file_orig`](#-redis--config_file_orig)
+* [`config_file`](#-redis--config_file)
+* [`config_file_mode`](#-redis--config_file_mode)
+* [`config_group`](#-redis--config_group)
+* [`config_owner`](#-redis--config_owner)
+* [`conf_template`](#-redis--conf_template)
+* [`daemonize`](#-redis--daemonize)
+* [`default_install`](#-redis--default_install)
+* [`databases`](#-redis--databases)
+* [`dbfilename`](#-redis--dbfilename)
+* [`extra_config_file`](#-redis--extra_config_file)
+* [`hash_max_ziplist_entries`](#-redis--hash_max_ziplist_entries)
+* [`hash_max_ziplist_value`](#-redis--hash_max_ziplist_value)
+* [`hll_sparse_max_bytes`](#-redis--hll_sparse_max_bytes)
+* [`hz`](#-redis--hz)
+* [`latency_monitor_threshold`](#-redis--latency_monitor_threshold)
+* [`list_max_ziplist_entries`](#-redis--list_max_ziplist_entries)
+* [`list_max_ziplist_value`](#-redis--list_max_ziplist_value)
+* [`log_dir`](#-redis--log_dir)
+* [`log_dir_mode`](#-redis--log_dir_mode)
+* [`log_file`](#-redis--log_file)
+* [`log_level`](#-redis--log_level)
+* [`manage_repo`](#-redis--manage_repo)
+* [`manage_package`](#-redis--manage_package)
+* [`managed_by_cluster_manager`](#-redis--managed_by_cluster_manager)
+* [`masterauth`](#-redis--masterauth)
+* [`maxclients`](#-redis--maxclients)
+* [`maxmemory`](#-redis--maxmemory)
+* [`maxmemory_policy`](#-redis--maxmemory_policy)
+* [`maxmemory_samples`](#-redis--maxmemory_samples)
+* [`min_slaves_max_lag`](#-redis--min_slaves_max_lag)
+* [`min_slaves_to_write`](#-redis--min_slaves_to_write)
+* [`modules`](#-redis--modules)
+* [`no_appendfsync_on_rewrite`](#-redis--no_appendfsync_on_rewrite)
+* [`notify_keyspace_events`](#-redis--notify_keyspace_events)
+* [`notify_service`](#-redis--notify_service)
+* [`package_ensure`](#-redis--package_ensure)
+* [`package_name`](#-redis--package_name)
+* [`pid_file`](#-redis--pid_file)
+* [`port`](#-redis--port)
+* [`protected_mode`](#-redis--protected_mode)
+* [`ppa_repo`](#-redis--ppa_repo)
+* [`redis_apt_repo`](#-redis--redis_apt_repo)
+* [`apt_location`](#-redis--apt_location)
+* [`apt_repos`](#-redis--apt_repos)
+* [`apt_release`](#-redis--apt_release)
+* [`apt_key_id`](#-redis--apt_key_id)
+* [`apt_key_server`](#-redis--apt_key_server)
+* [`apt_key_options`](#-redis--apt_key_options)
+* [`rdbcompression`](#-redis--rdbcompression)
+* [`rename_commands`](#-redis--rename_commands)
+* [`repl_announce_ip`](#-redis--repl_announce_ip)
+* [`repl_announce_port`](#-redis--repl_announce_port)
+* [`repl_backlog_size`](#-redis--repl_backlog_size)
+* [`repl_backlog_ttl`](#-redis--repl_backlog_ttl)
+* [`repl_disable_tcp_nodelay`](#-redis--repl_disable_tcp_nodelay)
+* [`repl_ping_slave_period`](#-redis--repl_ping_slave_period)
+* [`repl_timeout`](#-redis--repl_timeout)
+* [`requirepass`](#-redis--requirepass)
+* [`save_db_to_disk`](#-redis--save_db_to_disk)
+* [`save_db_to_disk_interval`](#-redis--save_db_to_disk_interval)
+* [`service_manage`](#-redis--service_manage)
+* [`service_enable`](#-redis--service_enable)
+* [`service_ensure`](#-redis--service_ensure)
+* [`service_group`](#-redis--service_group)
+* [`service_name`](#-redis--service_name)
+* [`service_user`](#-redis--service_user)
+* [`service_timeout_start`](#-redis--service_timeout_start)
+* [`service_timeout_stop`](#-redis--service_timeout_stop)
+* [`set_max_intset_entries`](#-redis--set_max_intset_entries)
+* [`slave_priority`](#-redis--slave_priority)
+* [`slave_read_only`](#-redis--slave_read_only)
+* [`slave_serve_stale_data`](#-redis--slave_serve_stale_data)
+* [`slaveof`](#-redis--slaveof)
+* [`replicaof`](#-redis--replicaof)
+* [`slowlog_log_slower_than`](#-redis--slowlog_log_slower_than)
+* [`slowlog_max_len`](#-redis--slowlog_max_len)
+* [`stop_writes_on_bgsave_error`](#-redis--stop_writes_on_bgsave_error)
+* [`syslog_enabled`](#-redis--syslog_enabled)
+* [`syslog_facility`](#-redis--syslog_facility)
+* [`tcp_backlog`](#-redis--tcp_backlog)
+* [`tcp_keepalive`](#-redis--tcp_keepalive)
+* [`timeout`](#-redis--timeout)
+* [`tls_port`](#-redis--tls_port)
+* [`tls_cert_file`](#-redis--tls_cert_file)
+* [`tls_key_file`](#-redis--tls_key_file)
+* [`tls_ca_cert_file`](#-redis--tls_ca_cert_file)
+* [`tls_ca_cert_dir`](#-redis--tls_ca_cert_dir)
+* [`tls_auth_clients`](#-redis--tls_auth_clients)
+* [`tls_replication`](#-redis--tls_replication)
+* [`tls_cluster`](#-redis--tls_cluster)
+* [`tls_ciphers`](#-redis--tls_ciphers)
+* [`tls_ciphersuites`](#-redis--tls_ciphersuites)
+* [`tls_protocols`](#-redis--tls_protocols)
+* [`tls_prefer_server_ciphers`](#-redis--tls_prefer_server_ciphers)
+* [`ulimit`](#-redis--ulimit)
+* [`ulimit_managed`](#-redis--ulimit_managed)
+* [`unixsocket`](#-redis--unixsocket)
+* [`unixsocketperm`](#-redis--unixsocketperm)
+* [`workdir`](#-redis--workdir)
+* [`workdir_mode`](#-redis--workdir_mode)
+* [`zset_max_ziplist_entries`](#-redis--zset_max_ziplist_entries)
+* [`zset_max_ziplist_value`](#-redis--zset_max_ziplist_value)
+* [`cluster_enabled`](#-redis--cluster_enabled)
+* [`cluster_config_file`](#-redis--cluster_config_file)
+* [`cluster_node_timeout`](#-redis--cluster_node_timeout)
+* [`cluster_slave_validity_factor`](#-redis--cluster_slave_validity_factor)
+* [`cluster_require_full_coverage`](#-redis--cluster_require_full_coverage)
+* [`cluster_migration_barrier`](#-redis--cluster_migration_barrier)
+* [`instances`](#-redis--instances)
+* [`io_threads`](#-redis--io_threads)
+* [`io_threads_do_reads`](#-redis--io_threads_do_reads)
+* [`cluster_allow_reads_when_down`](#-redis--cluster_allow_reads_when_down)
+* [`cluster_replica_no_failover`](#-redis--cluster_replica_no_failover)
+* [`dynamic_hz`](#-redis--dynamic_hz)
+* [`activedefrag`](#-redis--activedefrag)
+* [`active_defrag_ignore_bytes`](#-redis--active_defrag_ignore_bytes)
+* [`active_defrag_threshold_lower`](#-redis--active_defrag_threshold_lower)
+* [`active_defrag_threshold_upper`](#-redis--active_defrag_threshold_upper)
+* [`active_defrag_cycle_min`](#-redis--active_defrag_cycle_min)
+* [`active_defrag_cycle_max`](#-redis--active_defrag_cycle_max)
+* [`active_defrag_max_scan_fields`](#-redis--active_defrag_max_scan_fields)
+* [`jemalloc_bg_thread`](#-redis--jemalloc_bg_thread)
+* [`rdb_save_incremental_fsync`](#-redis--rdb_save_incremental_fsync)
+* [`dnf_module_stream`](#-redis--dnf_module_stream)
+* [`output_buffer_limit_slave`](#-redis--output_buffer_limit_slave)
+* [`output_buffer_limit_pubsub`](#-redis--output_buffer_limit_pubsub)
+* [`manage_service_file`](#-redis--manage_service_file)
+
+##### <a name="-redis--activerehashing"></a>`activerehashing`
 
 Data type: `Boolean`
 
 Enable/disable active rehashing.
 
-Default value: ``true``
+Default value: `true`
 
-##### `aof_load_truncated`
+##### <a name="-redis--aof_load_truncated"></a>`aof_load_truncated`
 
 Data type: `Boolean`
 
 Enable/disable loading truncated AOF file
 
-Default value: ``true``
+Default value: `true`
 
-##### `aof_rewrite_incremental_fsync`
+##### <a name="-redis--aof_rewrite_incremental_fsync"></a>`aof_rewrite_incremental_fsync`
 
 Data type: `Boolean`
 
 Enable/disable fsync for AOF file
 
-Default value: ``true``
+Default value: `true`
 
-##### `appendfilename`
+##### <a name="-redis--appendfilename"></a>`appendfilename`
 
 Data type: `String[1]`
 
@@ -115,7 +258,7 @@ The name of the append only file
 
 Default value: `'appendonly.aof'`
 
-##### `appendfsync`
+##### <a name="-redis--appendfsync"></a>`appendfsync`
 
 Data type: `Enum['no', 'always', 'everysec']`
 
@@ -123,15 +266,15 @@ Adjust fsync mode
 
 Default value: `'everysec'`
 
-##### `appendonly`
+##### <a name="-redis--appendonly"></a>`appendonly`
 
 Data type: `Boolean`
 
 Enable/disable appendonly mode.
 
-Default value: ``false``
+Default value: `false`
 
-##### `auto_aof_rewrite_min_size`
+##### <a name="-redis--auto_aof_rewrite_min_size"></a>`auto_aof_rewrite_min_size`
 
 Data type: `String[1]`
 
@@ -139,7 +282,7 @@ Adjust minimum size for auto-aof-rewrite.
 
 Default value: `'64mb'`
 
-##### `auto_aof_rewrite_percentage`
+##### <a name="-redis--auto_aof_rewrite_percentage"></a>`auto_aof_rewrite_percentage`
 
 Data type: `Integer[0]`
 
@@ -147,7 +290,7 @@ Adjust percentatge for auto-aof-rewrite.
 
 Default value: `100`
 
-##### `bind`
+##### <a name="-redis--bind"></a>`bind`
 
 Data type: `Variant[Stdlib::IP::Address, Array[Stdlib::IP::Address]]`
 
@@ -155,7 +298,15 @@ Configure which IP address(es) to listen on. To bind on all interfaces, use an e
 
 Default value: `['127.0.0.1']`
 
-##### `config_dir`
+##### <a name="-redis--bin_path"></a>`bin_path`
+
+Data type: `Stdlib::Absolutepath`
+
+Directory containing redis binary executables.
+
+Default value: `$redis::params::bin_path`
+
+##### <a name="-redis--config_dir"></a>`config_dir`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -163,7 +314,7 @@ Directory containing the configuration files.
 
 Default value: `$redis::params::config_dir`
 
-##### `config_dir_mode`
+##### <a name="-redis--config_dir_mode"></a>`config_dir_mode`
 
 Data type: `Stdlib::Filemode`
 
@@ -171,7 +322,7 @@ Adjust mode for directory containing configuration files.
 
 Default value: `$redis::params::config_dir_mode`
 
-##### `config_file_orig`
+##### <a name="-redis--config_file_orig"></a>`config_file_orig`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -179,7 +330,7 @@ The location and name of a config file that provides the source
 
 Default value: `$redis::params::config_file_orig`
 
-##### `config_file`
+##### <a name="-redis--config_file"></a>`config_file`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -187,15 +338,15 @@ Adjust main configuration file.
 
 Default value: `$redis::params::config_file`
 
-##### `config_file_mode`
+##### <a name="-redis--config_file_mode"></a>`config_file_mode`
 
 Data type: `Stdlib::Filemode`
 
 Adjust permissions for configuration files.
 
-Default value: `'0644'`
+Default value: `'0640'`
 
-##### `config_group`
+##### <a name="-redis--config_group"></a>`config_group`
 
 Data type: `String[1]`
 
@@ -203,7 +354,7 @@ Adjust filesystem group for config files.
 
 Default value: `$redis::params::config_group`
 
-##### `config_owner`
+##### <a name="-redis--config_owner"></a>`config_owner`
 
 Data type: `String[1]`
 
@@ -211,15 +362,15 @@ Adjust filesystem owner for config files.
 
 Default value: `$redis::params::config_owner`
 
-##### `conf_template`
+##### <a name="-redis--conf_template"></a>`conf_template`
 
 Data type: `String[1]`
 
 Define which template to use.
 
-Default value: `'redis/redis.conf.erb'`
+Default value: `'redis/redis.conf.epp'`
 
-##### `daemonize`
+##### <a name="-redis--daemonize"></a>`daemonize`
 
 Data type: `Boolean`
 
@@ -227,15 +378,15 @@ Have Redis run as a daemon.
 
 Default value: `$redis::params::daemonize`
 
-##### `default_install`
+##### <a name="-redis--default_install"></a>`default_install`
 
 Data type: `Boolean`
 
 Configure a default install of redis.
 
-Default value: ``true``
+Default value: `true`
 
-##### `databases`
+##### <a name="-redis--databases"></a>`databases`
 
 Data type: `Integer[1]`
 
@@ -243,7 +394,7 @@ Set the number of databases.
 
 Default value: `16`
 
-##### `dbfilename`
+##### <a name="-redis--dbfilename"></a>`dbfilename`
 
 Data type: `Variant[String[1], Boolean]`
 
@@ -251,15 +402,15 @@ The filename where to dump the DB
 
 Default value: `'dump.rdb'`
 
-##### `extra_config_file`
+##### <a name="-redis--extra_config_file"></a>`extra_config_file`
 
 Data type: `Optional[String]`
 
 Optional extra config file to include
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `hash_max_ziplist_entries`
+##### <a name="-redis--hash_max_ziplist_entries"></a>`hash_max_ziplist_entries`
 
 Data type: `Integer[0]`
 
@@ -267,7 +418,7 @@ Set max ziplist entries for hashes.
 
 Default value: `512`
 
-##### `hash_max_ziplist_value`
+##### <a name="-redis--hash_max_ziplist_value"></a>`hash_max_ziplist_value`
 
 Data type: `Integer[0]`
 
@@ -275,7 +426,7 @@ Set max ziplist values for hashes.
 
 Default value: `64`
 
-##### `hll_sparse_max_bytes`
+##### <a name="-redis--hll_sparse_max_bytes"></a>`hll_sparse_max_bytes`
 
 Data type: `Integer[0]`
 
@@ -283,7 +434,7 @@ HyperLogLog sparse representation bytes limit
 
 Default value: `3000`
 
-##### `hz`
+##### <a name="-redis--hz"></a>`hz`
 
 Data type: `Integer[1, 500]`
 
@@ -291,7 +442,7 @@ Set redis background tasks frequency
 
 Default value: `10`
 
-##### `latency_monitor_threshold`
+##### <a name="-redis--latency_monitor_threshold"></a>`latency_monitor_threshold`
 
 Data type: `Integer[0]`
 
@@ -299,7 +450,7 @@ Latency monitoring threshold in milliseconds
 
 Default value: `0`
 
-##### `list_max_ziplist_entries`
+##### <a name="-redis--list_max_ziplist_entries"></a>`list_max_ziplist_entries`
 
 Data type: `Integer[0]`
 
@@ -307,7 +458,7 @@ Set max ziplist entries for lists.
 
 Default value: `512`
 
-##### `list_max_ziplist_value`
+##### <a name="-redis--list_max_ziplist_value"></a>`list_max_ziplist_value`
 
 Data type: `Integer[0]`
 
@@ -315,15 +466,15 @@ Set max ziplist values for lists.
 
 Default value: `64`
 
-##### `log_dir`
+##### <a name="-redis--log_dir"></a>`log_dir`
 
 Data type: `Stdlib::Absolutepath`
 
 Specify directory where to write log entries.
 
-Default value: `'/var/log/redis'`
+Default value: `$redis::params::log_dir`
 
-##### `log_dir_mode`
+##### <a name="-redis--log_dir_mode"></a>`log_dir_mode`
 
 Data type: `Stdlib::Filemode`
 
@@ -331,15 +482,16 @@ Adjust mode for directory containing log files.
 
 Default value: `$redis::params::log_dir_mode`
 
-##### `log_file`
+##### <a name="-redis--log_file"></a>`log_file`
 
-Data type: `Stdlib::Absolutepath`
+Data type: `String`
 
-Specify file where to write log entries.
+Specify file where to write log entries. Relative paths will be prepended
+with log_dir but absolute paths are also accepted.
 
-Default value: `'/var/log/redis/redis.log'`
+Default value: `'redis.log'`
 
-##### `log_level`
+##### <a name="-redis--log_level"></a>`log_level`
 
 Data type: `Redis::LogLevel`
 
@@ -347,39 +499,39 @@ Specify the server verbosity level.
 
 Default value: `'notice'`
 
-##### `manage_repo`
+##### <a name="-redis--manage_repo"></a>`manage_repo`
 
 Data type: `Boolean`
 
 Enable/disable upstream repository configuration.
 
-Default value: ``false``
+Default value: `false`
 
-##### `manage_package`
+##### <a name="-redis--manage_package"></a>`manage_package`
 
 Data type: `Boolean`
 
 Enable/disable management of package
 
-Default value: ``true``
+Default value: `true`
 
-##### `managed_by_cluster_manager`
+##### <a name="-redis--managed_by_cluster_manager"></a>`managed_by_cluster_manager`
 
 Data type: `Boolean`
 
 Choose if redis will be managed by a cluster manager such as pacemaker or rgmanager
 
-Default value: ``false``
+Default value: `false`
 
-##### `masterauth`
+##### <a name="-redis--masterauth"></a>`masterauth`
 
-Data type: `Optional[String[1]]`
+Data type: `Optional[Variant[String[1], Sensitive[String[1]]]]`
 
 If the master is password protected (using the "requirepass" configuration
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `maxclients`
+##### <a name="-redis--maxclients"></a>`maxclients`
 
 Data type: `Integer[1]`
 
@@ -387,31 +539,31 @@ Set the max number of connected clients at the same time.
 
 Default value: `10000`
 
-##### `maxmemory`
+##### <a name="-redis--maxmemory"></a>`maxmemory`
 
 Data type: `Any`
 
 Don't use more memory than the specified amount of bytes.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `maxmemory_policy`
+##### <a name="-redis--maxmemory_policy"></a>`maxmemory_policy`
 
-Data type: `Any`
+Data type: `Optional[Redis::MemoryPolicy]`
 
 How Redis will select what to remove when maxmemory is reached.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `maxmemory_samples`
+##### <a name="-redis--maxmemory_samples"></a>`maxmemory_samples`
 
-Data type: `Any`
+Data type: `Optional[Integer[1, 10]]`
 
 Select as well the sample size to check.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `min_slaves_max_lag`
+##### <a name="-redis--min_slaves_max_lag"></a>`min_slaves_max_lag`
 
 Data type: `Integer[0]`
 
@@ -419,7 +571,7 @@ The lag in seconds
 
 Default value: `10`
 
-##### `min_slaves_to_write`
+##### <a name="-redis--min_slaves_to_write"></a>`min_slaves_to_write`
 
 Data type: `Integer[0]`
 
@@ -427,39 +579,47 @@ Minimum number of slaves to be in "online" state
 
 Default value: `0`
 
-##### `no_appendfsync_on_rewrite`
+##### <a name="-redis--modules"></a>`modules`
+
+Data type: `Array[Stdlib::Absolutepath]`
+
+Additional redis modules to load (.so path)
+
+Default value: `[]`
+
+##### <a name="-redis--no_appendfsync_on_rewrite"></a>`no_appendfsync_on_rewrite`
 
 Data type: `Boolean`
 
 If you have latency problems turn this to 'true'. Otherwise leave it as
 
-Default value: ``false``
+Default value: `false`
 
-##### `notify_keyspace_events`
+##### <a name="-redis--notify_keyspace_events"></a>`notify_keyspace_events`
 
 Data type: `Optional[String[1]]`
 
 Which events to notify Pub/Sub clients about events happening
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `notify_service`
+##### <a name="-redis--notify_service"></a>`notify_service`
 
 Data type: `Boolean`
 
-You may disable service reloads when config files change if you
+You may disable service reloads when config files change
 
-Default value: ``true``
+Default value: `true`
 
-##### `package_ensure`
+##### <a name="-redis--package_ensure"></a>`package_ensure`
 
 Data type: `String[1]`
 
 Default action for package.
 
-Default value: `'present'`
+Default value: `'installed'`
 
-##### `package_name`
+##### <a name="-redis--package_name"></a>`package_name`
 
 Data type: `String[1]`
 
@@ -467,7 +627,7 @@ Upstream package name.
 
 Default value: `$redis::params::package_name`
 
-##### `pid_file`
+##### <a name="-redis--pid_file"></a>`pid_file`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -475,7 +635,7 @@ Where to store the pid.
 
 Default value: `$redis::params::pid_file`
 
-##### `port`
+##### <a name="-redis--port"></a>`port`
 
 Data type: `Stdlib::Port`
 
@@ -483,31 +643,111 @@ Configure which port to listen on.
 
 Default value: `6379`
 
-##### `protected_mode`
+##### <a name="-redis--protected_mode"></a>`protected_mode`
 
 Data type: `Boolean`
 
 Whether protected mode is enabled or not.  Only applicable when no bind is set.
 
-Default value: ``true``
+Default value: `true`
 
-##### `ppa_repo`
+##### <a name="-redis--ppa_repo"></a>`ppa_repo`
 
 Data type: `Optional[String]`
 
 Specify upstream (Ubuntu) PPA entry.
 
-Default value: `$redis::params::ppa_repo`
+Default value: `undef`
 
-##### `rdbcompression`
+##### <a name="-redis--redis_apt_repo"></a>`redis_apt_repo`
+
+Data type: `Boolean`
+
+If you want to use the redis apt repository.
+
+Default value: `false`
+
+##### <a name="-redis--apt_location"></a>`apt_location`
+
+Data type: `Stdlib::HTTPSUrl`
+
+Specify the URL of the apt repository.
+
+Default value: `'https://packages.redis.io/deb/'`
+
+##### <a name="-redis--apt_repos"></a>`apt_repos`
+
+Data type: `String[1]`
+
+Specify the repository to use for apt. Defaults to 'main'.
+
+Default value: `'main'`
+
+##### <a name="-redis--apt_release"></a>`apt_release`
+
+Data type: `Optional[String]`
+
+Specify the os codename.
+
+Default value: `undef`
+
+##### <a name="-redis--apt_key_id"></a>`apt_key_id`
+
+Data type: `String[1]`
+
+Specify the PGP key id to use for apt.
+
+Default value: `'54318FA4052D1E61A6B6F7BB5F4349D6BF53AA0C'`
+
+##### <a name="-redis--apt_key_server"></a>`apt_key_server`
+
+Data type: `String[1]`
+
+Specify the PGP key server to use for apt.
+
+Default value: `'hkp://keyserver.ubuntu.com/'`
+
+##### <a name="-redis--apt_key_options"></a>`apt_key_options`
+
+Data type: `Optional[String]`
+
+Passes additional options to `apt-key adv --keyserver-options`.
+
+Default value: `undef`
+
+##### <a name="-redis--rdbcompression"></a>`rdbcompression`
 
 Data type: `Boolean`
 
 Enable/disable compression of string objects using LZF when dumping.
 
-Default value: ``true``
+Default value: `true`
 
-##### `repl_backlog_size`
+##### <a name="-redis--rename_commands"></a>`rename_commands`
+
+Data type: `Hash[String,String]`
+
+A list of Redis commands to rename or disable for security reasons
+
+Default value: `{}`
+
+##### <a name="-redis--repl_announce_ip"></a>`repl_announce_ip`
+
+Data type: `Optional[Stdlib::Host]`
+
+The specific IP or hostname a replica will report to its master
+
+Default value: `undef`
+
+##### <a name="-redis--repl_announce_port"></a>`repl_announce_port`
+
+Data type: `Optional[Stdlib::Port]`
+
+The specific port a replica will report to its master
+
+Default value: `undef`
+
+##### <a name="-redis--repl_backlog_size"></a>`repl_backlog_size`
 
 Data type: `String[1]`
 
@@ -515,7 +755,7 @@ The replication backlog size
 
 Default value: `'1mb'`
 
-##### `repl_backlog_ttl`
+##### <a name="-redis--repl_backlog_ttl"></a>`repl_backlog_ttl`
 
 Data type: `Integer[0]`
 
@@ -523,15 +763,15 @@ The number of seconds to elapse before freeing backlog buffer
 
 Default value: `3600`
 
-##### `repl_disable_tcp_nodelay`
+##### <a name="-redis--repl_disable_tcp_nodelay"></a>`repl_disable_tcp_nodelay`
 
 Data type: `Boolean`
 
 Enable/disable TCP_NODELAY on the slave socket after SYNC
 
-Default value: ``false``
+Default value: `false`
 
-##### `repl_ping_slave_period`
+##### <a name="-redis--repl_ping_slave_period"></a>`repl_ping_slave_period`
 
 Data type: `Integer[1]`
 
@@ -539,7 +779,7 @@ Slaves send PINGs to server in a predefined interval. It's possible
 
 Default value: `10`
 
-##### `repl_timeout`
+##### <a name="-redis--repl_timeout"></a>`repl_timeout`
 
 Data type: `Integer[1]`
 
@@ -547,23 +787,23 @@ Set the replication timeout for:
 
 Default value: `60`
 
-##### `requirepass`
+##### <a name="-redis--requirepass"></a>`requirepass`
 
 Data type: `Optional[String]`
 
 Require clients to issue AUTH <PASSWORD> before processing any other commands.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `save_db_to_disk`
+##### <a name="-redis--save_db_to_disk"></a>`save_db_to_disk`
 
 Data type: `Boolean`
 
 Set if save db to disk.
 
-Default value: ``true``
+Default value: `true`
 
-##### `save_db_to_disk_interval`
+##### <a name="-redis--save_db_to_disk_interval"></a>`save_db_to_disk_interval`
 
 Data type: `Hash`
 
@@ -571,23 +811,23 @@ save the dataset every N seconds if there are at least M changes in the dataset
 
 Default value: `{ '900' => '1', '300' => '10', '60' => '10000' }`
 
-##### `service_manage`
+##### <a name="-redis--service_manage"></a>`service_manage`
 
 Data type: `Boolean`
 
 Specify if the service should be part of the catalog.
 
-Default value: ``true``
+Default value: `true`
 
-##### `service_enable`
+##### <a name="-redis--service_enable"></a>`service_enable`
 
 Data type: `Boolean`
 
 Enable/disable daemon at boot.
 
-Default value: ``true``
+Default value: `true`
 
-##### `service_ensure`
+##### <a name="-redis--service_ensure"></a>`service_ensure`
 
 Data type: `Stdlib::Ensure::Service`
 
@@ -595,7 +835,7 @@ Specify if the server should be running.
 
 Default value: `'running'`
 
-##### `service_group`
+##### <a name="-redis--service_group"></a>`service_group`
 
 Data type: `String[1]`
 
@@ -603,7 +843,7 @@ Specify which group to run as.
 
 Default value: `'redis'`
 
-##### `service_name`
+##### <a name="-redis--service_name"></a>`service_name`
 
 Data type: `String[1]`
 
@@ -611,7 +851,7 @@ Specify the service name for Init or Systemd.
 
 Default value: `$redis::params::service_name`
 
-##### `service_user`
+##### <a name="-redis--service_user"></a>`service_user`
 
 Data type: `String[1]`
 
@@ -619,7 +859,23 @@ Specify which user to run as.
 
 Default value: `'redis'`
 
-##### `set_max_intset_entries`
+##### <a name="-redis--service_timeout_start"></a>`service_timeout_start`
+
+Data type: `Optional[Integer[0]]`
+
+Specify the time after which a service startup should be considered as failed.
+
+Default value: `undef`
+
+##### <a name="-redis--service_timeout_stop"></a>`service_timeout_stop`
+
+Data type: `Optional[Integer[0]]`
+
+Specify the time after which a service stop should be considered as failed.
+
+Default value: `undef`
+
+##### <a name="-redis--set_max_intset_entries"></a>`set_max_intset_entries`
 
 Data type: `Integer[0]`
 
@@ -628,7 +884,7 @@ in order to use this special memory saving encoding.
 
 Default value: `512`
 
-##### `slave_priority`
+##### <a name="-redis--slave_priority"></a>`slave_priority`
 
 Data type: `Integer[0]`
 
@@ -636,15 +892,15 @@ The priority number for slave promotion by Sentinel
 
 Default value: `100`
 
-##### `slave_read_only`
+##### <a name="-redis--slave_read_only"></a>`slave_read_only`
 
 Data type: `Boolean`
 
 You can configure a slave instance to accept writes or not.
 
-Default value: ``true``
+Default value: `true`
 
-##### `slave_serve_stale_data`
+##### <a name="-redis--slave_serve_stale_data"></a>`slave_serve_stale_data`
 
 Data type: `Boolean`
 
@@ -657,26 +913,34 @@ is still in progress, the slave can act in two different ways:
    an error "SYNC with master in progress" to all the kind of commands
    but to INFO and SLAVEOF.
 
-Default value: ``true``
+Default value: `true`
 
-##### `slaveof`
+##### <a name="-redis--slaveof"></a>`slaveof`
 
 Data type: `Optional[String[1]]`
 
 Use slaveof to make a Redis instance a copy of another Redis server.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `slowlog_log_slower_than`
+##### <a name="-redis--replicaof"></a>`replicaof`
 
-Data type: `Integer[0]`
+Data type: `Optional[String[1]]`
+
+Use replicaof to make a Redis instance a copy of another Redis server.
+
+Default value: `undef`
+
+##### <a name="-redis--slowlog_log_slower_than"></a>`slowlog_log_slower_than`
+
+Data type: `Integer[-1]`
 
 Tells Redis what is the execution time, in microseconds, to exceed in order
 for the command to get logged.
 
 Default value: `10000`
 
-##### `slowlog_max_len`
+##### <a name="-redis--slowlog_max_len"></a>`slowlog_max_len`
 
 Data type: `Integer[0]`
 
@@ -685,32 +949,32 @@ logged.
 
 Default value: `1024`
 
-##### `stop_writes_on_bgsave_error`
+##### <a name="-redis--stop_writes_on_bgsave_error"></a>`stop_writes_on_bgsave_error`
 
 Data type: `Boolean`
 
 If false then Redis will continue to work as usual even if there are
 problems with disk, permissions, and so forth.
 
-Default value: ``true``
+Default value: `true`
 
-##### `syslog_enabled`
+##### <a name="-redis--syslog_enabled"></a>`syslog_enabled`
 
 Data type: `Boolean`
 
 Enable/disable logging to the system logger.
 
-Default value: ``false``
+Default value: `false`
 
-##### `syslog_facility`
+##### <a name="-redis--syslog_facility"></a>`syslog_facility`
 
 Data type: `Optional[String[1]]`
 
 Specify the syslog facility. Must be USER or between LOCAL0-LOCAL7.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `tcp_backlog`
+##### <a name="-redis--tcp_backlog"></a>`tcp_backlog`
 
 Data type: `Integer[0]`
 
@@ -718,7 +982,7 @@ Sets the TCP backlog
 
 Default value: `511`
 
-##### `tcp_keepalive`
+##### <a name="-redis--tcp_keepalive"></a>`tcp_keepalive`
 
 Data type: `Integer[0]`
 
@@ -726,7 +990,7 @@ TCP keepalive.
 
 Default value: `0`
 
-##### `timeout`
+##### <a name="-redis--timeout"></a>`timeout`
 
 Data type: `Integer[0]`
 
@@ -734,7 +998,103 @@ Close the connection after a client is idle for N seconds (0 to disable).
 
 Default value: `0`
 
-##### `ulimit`
+##### <a name="-redis--tls_port"></a>`tls_port`
+
+Data type: `Optional[Stdlib::Port]`
+
+Configure which TLS port to listen on.
+
+Default value: `undef`
+
+##### <a name="-redis--tls_cert_file"></a>`tls_cert_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which X.509 certificate file to use for TLS connections.
+
+Default value: `undef`
+
+##### <a name="-redis--tls_key_file"></a>`tls_key_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which privaye key file to use for TLS connections.
+
+Default value: `undef`
+
+##### <a name="-redis--tls_ca_cert_file"></a>`tls_ca_cert_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which X.509 CA certificate(s) bundle file to use.
+
+Default value: `undef`
+
+##### <a name="-redis--tls_ca_cert_dir"></a>`tls_ca_cert_dir`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which X.509 CA certificate(s) bundle directory to use.
+
+Default value: `undef`
+
+##### <a name="-redis--tls_auth_clients"></a>`tls_auth_clients`
+
+Data type: `Enum['yes', 'no', 'optional']`
+
+Specify if clients and replicas are required to authenticate using valid client side certificates.
+
+Default value: `'no'`
+
+##### <a name="-redis--tls_replication"></a>`tls_replication`
+
+Data type: `Boolean`
+
+Specify if TLS should be enabled on replication links.
+
+Default value: `false`
+
+##### <a name="-redis--tls_cluster"></a>`tls_cluster`
+
+Data type: `Boolean`
+
+Specify if TLS should be used for the bus protocol.
+
+Default value: `false`
+
+##### <a name="-redis--tls_ciphers"></a>`tls_ciphers`
+
+Data type: `Optional[String[1]]`
+
+Configure allowed ciphers for TLS <= TLSv1.2.
+
+Default value: `undef`
+
+##### <a name="-redis--tls_ciphersuites"></a>`tls_ciphersuites`
+
+Data type: `Optional[String[1]]`
+
+Configure allowed TLSv1.3 ciphersuites.
+
+Default value: `undef`
+
+##### <a name="-redis--tls_protocols"></a>`tls_protocols`
+
+Data type: `Optional[String[1]]`
+
+Configure allowed TLS protocol versions.
+
+Default value: `undef`
+
+##### <a name="-redis--tls_prefer_server_ciphers"></a>`tls_prefer_server_ciphers`
+
+Data type: `Boolean`
+
+Specify if the server's preference should be used when choosing a cipher.
+
+Default value: `false`
+
+##### <a name="-redis--ulimit"></a>`ulimit`
 
 Data type: `Integer[0]`
 
@@ -742,7 +1102,16 @@ Limit the use of system-wide resources.
 
 Default value: `65536`
 
-##### `unixsocket`
+##### <a name="-redis--ulimit_managed"></a>`ulimit_managed`
+
+Data type: `Boolean`
+
+Defines wheter the max number of open files for the
+systemd service unit is explicitly managed.
+
+Default value: `true`
+
+##### <a name="-redis--unixsocket"></a>`unixsocket`
 
 Data type: `Variant[Stdlib::Absolutepath, Enum['']]`
 
@@ -750,7 +1119,7 @@ Define unix socket path
 
 Default value: `'/var/run/redis/redis.sock'`
 
-##### `unixsocketperm`
+##### <a name="-redis--unixsocketperm"></a>`unixsocketperm`
 
 Data type: `Variant[Stdlib::Filemode, Enum['']]`
 
@@ -758,7 +1127,7 @@ Define unix socket file permissions
 
 Default value: `'0755'`
 
-##### `workdir`
+##### <a name="-redis--workdir"></a>`workdir`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -767,7 +1136,7 @@ above using the 'dbfilename' configuration directive.
 
 Default value: `$redis::params::workdir`
 
-##### `workdir_mode`
+##### <a name="-redis--workdir_mode"></a>`workdir_mode`
 
 Data type: `Stdlib::Filemode`
 
@@ -775,7 +1144,7 @@ Adjust mode for data directory.
 
 Default value: `'0750'`
 
-##### `zset_max_ziplist_entries`
+##### <a name="-redis--zset_max_ziplist_entries"></a>`zset_max_ziplist_entries`
 
 Data type: `Integer[0]`
 
@@ -783,7 +1152,7 @@ Set max entries for sorted sets.
 
 Default value: `128`
 
-##### `zset_max_ziplist_value`
+##### <a name="-redis--zset_max_ziplist_value"></a>`zset_max_ziplist_value`
 
 Data type: `Integer[0]`
 
@@ -791,15 +1160,15 @@ Set max values for sorted sets.
 
 Default value: `64`
 
-##### `cluster_enabled`
+##### <a name="-redis--cluster_enabled"></a>`cluster_enabled`
 
 Data type: `Boolean`
 
 Enables redis 3.0 cluster functionality
 
-Default value: ``false``
+Default value: `false`
 
-##### `cluster_config_file`
+##### <a name="-redis--cluster_config_file"></a>`cluster_config_file`
 
 Data type: `String[1]`
 
@@ -808,7 +1177,7 @@ touched by humans. Only set if cluster_enabled is true
 
 Default value: `'nodes.conf'`
 
-##### `cluster_node_timeout`
+##### <a name="-redis--cluster_node_timeout"></a>`cluster_node_timeout`
 
 Data type: `Integer[1]`
 
@@ -816,7 +1185,7 @@ Node timeout. Only set if cluster_enabled is true
 
 Default value: `5000`
 
-##### `cluster_slave_validity_factor`
+##### <a name="-redis--cluster_slave_validity_factor"></a>`cluster_slave_validity_factor`
 
 Data type: `Integer[0]`
 
@@ -825,16 +1194,16 @@ Only set if cluster_enabled is true
 
 Default value: `0`
 
-##### `cluster_require_full_coverage`
+##### <a name="-redis--cluster_require_full_coverage"></a>`cluster_require_full_coverage`
 
 Data type: `Boolean`
 
 If false Redis Cluster will server queries even if requests about a subset of keys can be processed
 Only set if cluster_enabled is true
 
-Default value: ``true``
+Default value: `true`
 
-##### `cluster_migration_barrier`
+##### <a name="-redis--cluster_migration_barrier"></a>`cluster_migration_barrier`
 
 Data type: `Integer[0]`
 
@@ -844,7 +1213,7 @@ Only set if cluster_enabled is true
 
 Default value: `1`
 
-##### `instances`
+##### <a name="-redis--instances"></a>`instances`
 
 Data type: `Hash[String[1], Hash]`
 
@@ -852,7 +1221,140 @@ Iterate through multiple instance configurations
 
 Default value: `{}`
 
-##### `output_buffer_limit_slave`
+##### <a name="-redis--io_threads"></a>`io_threads`
+
+Data type: `Optional[Integer[1]]`
+
+Number of threads to handle IO operations in Redis
+
+Default value: `undef`
+
+##### <a name="-redis--io_threads_do_reads"></a>`io_threads_do_reads`
+
+Data type: `Optional[Boolean]`
+
+Enabled/disable io_threads to handle reads
+
+Default value: `undef`
+
+##### <a name="-redis--cluster_allow_reads_when_down"></a>`cluster_allow_reads_when_down`
+
+Data type: `Optional[Boolean]`
+
+Allows nodes to serve read data while cluster status is down
+
+Default value: `undef`
+
+##### <a name="-redis--cluster_replica_no_failover"></a>`cluster_replica_no_failover`
+
+Data type: `Optional[Boolean]`
+
+Disabled automatic failover for replica
+
+Default value: `undef`
+
+##### <a name="-redis--dynamic_hz"></a>`dynamic_hz`
+
+Data type: `Optional[Boolean]`
+
+When dynamic HZ is enabled, the actual configured HZ will be used
+as a baseline, but multiples of the configured HZ value will be actually
+used as needed once more clients are connected.
+
+Default value: `undef`
+
+##### <a name="-redis--activedefrag"></a>`activedefrag`
+
+Data type: `Optional[Boolean]`
+
+Enable/disable active defragmentation
+
+Default value: `undef`
+
+##### <a name="-redis--active_defrag_ignore_bytes"></a>`active_defrag_ignore_bytes`
+
+Data type: `String[1]`
+
+Minimum amount of fragmentation waste to start active defrag
+Only set if activedefrag is true
+
+Default value: `'100mb'`
+
+##### <a name="-redis--active_defrag_threshold_lower"></a>`active_defrag_threshold_lower`
+
+Data type: `Integer[1, 100]`
+
+Minimum percentage of fragmentation to start active defrag
+Only set if activedefrag is true
+
+Default value: `10`
+
+##### <a name="-redis--active_defrag_threshold_upper"></a>`active_defrag_threshold_upper`
+
+Data type: `Integer[1, 100]`
+
+Maximum percentage of fragmentation at which we use maximum effort
+Only set if activedefrag is true
+
+Default value: `100`
+
+##### <a name="-redis--active_defrag_cycle_min"></a>`active_defrag_cycle_min`
+
+Data type: `Integer[1, 100]`
+
+Minimal effort for defrag in CPU percentage, to be used when the lower
+threshold is reached
+Only set if activedefrag is true
+
+Default value: `1`
+
+##### <a name="-redis--active_defrag_cycle_max"></a>`active_defrag_cycle_max`
+
+Data type: `Integer[1, 100]`
+
+Maximal effort for defrag in CPU percentage, to be used when the upper
+threshold is reached
+Only set if activedefrag is true
+
+Default value: `100`
+
+##### <a name="-redis--active_defrag_max_scan_fields"></a>`active_defrag_max_scan_fields`
+
+Data type: `Integer[1]`
+
+Maximum number of set/hash/zset/list fields that will be processed from
+the main dictionary scan
+Only set if activedefrag is true
+
+Default value: `1000`
+
+##### <a name="-redis--jemalloc_bg_thread"></a>`jemalloc_bg_thread`
+
+Data type: `Optional[Boolean]`
+
+Jemalloc background thread for purging will be enabled by default
+
+Default value: `undef`
+
+##### <a name="-redis--rdb_save_incremental_fsync"></a>`rdb_save_incremental_fsync`
+
+Data type: `Optional[Boolean]`
+
+When redis saves RDB file, if the following option is enabled
+the file will be fsync-ed every 32 MB of data generated.
+
+Default value: `undef`
+
+##### <a name="-redis--dnf_module_stream"></a>`dnf_module_stream`
+
+Data type: `Optional[String[1]]`
+
+Manage the DNF module and set the version. This only makes sense on distributions
+that use DNF package manager, such as EL8 or Fedora.
+
+Default value: `undef`
+
+##### <a name="-redis--output_buffer_limit_slave"></a>`output_buffer_limit_slave`
 
 Data type: `String[1]`
 
@@ -860,7 +1362,7 @@ Data type: `String[1]`
 
 Default value: `'256mb 64mb 60'`
 
-##### `output_buffer_limit_pubsub`
+##### <a name="-redis--output_buffer_limit_pubsub"></a>`output_buffer_limit_pubsub`
 
 Data type: `String[1]`
 
@@ -868,30 +1370,25 @@ Data type: `String[1]`
 
 Default value: `'32mb 8mb 60'`
 
-##### `manage_service_file`
+##### <a name="-redis--manage_service_file"></a>`manage_service_file`
 
 Data type: `Boolean`
 
 
 
-Default value: ``false``
+Default value: `false`
 
-##### `minimum_version`
-
-Data type: `String[1]`
-
-
-
-Default value: `$redis::params::minimum_version`
-
-### `redis::administration`
+### <a name="redis--administration"></a>`redis::administration`
 
 As documented in the FAQ and https://redis.io/topics/admin.
 For disabling Transparent Huge Pages (THP), use separate module such as:
 https://forge.puppet.com/modules/alexharvey/disable_transparent_hugepage
 
+Note that this class requires the herculesteam/augeasproviders_sysctl module.
+
 * **See also**
   * https://redis.io/topics/admin
+  * https://forge.puppet.com/herculesteam/augeasproviders_sysctl
 
 #### Examples
 
@@ -911,17 +1408,20 @@ class {'redis::administration':
 
 #### Parameters
 
-The following parameters are available in the `redis::administration` class.
+The following parameters are available in the `redis::administration` class:
 
-##### `enable_overcommit_memory`
+* [`enable_overcommit_memory`](#-redis--administration--enable_overcommit_memory)
+* [`somaxconn`](#-redis--administration--somaxconn)
+
+##### <a name="-redis--administration--enable_overcommit_memory"></a>`enable_overcommit_memory`
 
 Data type: `Boolean`
 
 Enable the overcommit memory setting
 
-Default value: ``true``
+Default value: `true`
 
-##### `somaxconn`
+##### <a name="-redis--administration--somaxconn"></a>`somaxconn`
 
 Data type: `Integer[0]`
 
@@ -929,23 +1429,25 @@ Set somaxconn value
 
 Default value: `65535`
 
-### `redis::globals`
+### <a name="redis--globals"></a>`redis::globals`
 
 Set a global config for Redis
 
 #### Parameters
 
-The following parameters are available in the `redis::globals` class.
+The following parameters are available in the `redis::globals` class:
 
-##### `scl`
+* [`scl`](#-redis--globals--scl)
+
+##### <a name="-redis--globals--scl"></a>`scl`
 
 Data type: `Optional[String]`
 
-Use a specific Software CoLlection on Red Hat based systems
+Use a specific Software Collection on Red Hat 7 based systems
 
-Default value: ``undef``
+Default value: `undef`
 
-### `redis::sentinel`
+### <a name="redis--sentinel"></a>`redis::sentinel`
 
 Install redis-sentinel
 
@@ -977,17 +1479,58 @@ class { '::redis::sentinel':
 
 #### Parameters
 
-The following parameters are available in the `redis::sentinel` class.
+The following parameters are available in the `redis::sentinel` class:
 
-##### `auth_pass`
+* [`auth_pass`](#-redis--sentinel--auth_pass)
+* [`config_file`](#-redis--sentinel--config_file)
+* [`config_file_orig`](#-redis--sentinel--config_file_orig)
+* [`config_file_mode`](#-redis--sentinel--config_file_mode)
+* [`conf_template`](#-redis--sentinel--conf_template)
+* [`daemonize`](#-redis--sentinel--daemonize)
+* [`down_after`](#-redis--sentinel--down_after)
+* [`failover_timeout`](#-redis--sentinel--failover_timeout)
+* [`log_file`](#-redis--sentinel--log_file)
+* [`log_level`](#-redis--sentinel--log_level)
+* [`master_name`](#-redis--sentinel--master_name)
+* [`redis_host`](#-redis--sentinel--redis_host)
+* [`redis_port`](#-redis--sentinel--redis_port)
+* [`requirepass`](#-redis--sentinel--requirepass)
+* [`protected_mode`](#-redis--sentinel--protected_mode)
+* [`package_name`](#-redis--sentinel--package_name)
+* [`package_ensure`](#-redis--sentinel--package_ensure)
+* [`parallel_sync`](#-redis--sentinel--parallel_sync)
+* [`pid_file`](#-redis--sentinel--pid_file)
+* [`quorum`](#-redis--sentinel--quorum)
+* [`sentinel_announce_hostnames`](#-redis--sentinel--sentinel_announce_hostnames)
+* [`sentinel_announce_ip`](#-redis--sentinel--sentinel_announce_ip)
+* [`sentinel_bind`](#-redis--sentinel--sentinel_bind)
+* [`sentinel_port`](#-redis--sentinel--sentinel_port)
+* [`sentinel_resolve_hostnames`](#-redis--sentinel--sentinel_resolve_hostnames)
+* [`sentinel_tls_port`](#-redis--sentinel--sentinel_tls_port)
+* [`service_group`](#-redis--sentinel--service_group)
+* [`service_name`](#-redis--sentinel--service_name)
+* [`service_user`](#-redis--sentinel--service_user)
+* [`service_enable`](#-redis--sentinel--service_enable)
+* [`tls_cert_file`](#-redis--sentinel--tls_cert_file)
+* [`tls_key_file`](#-redis--sentinel--tls_key_file)
+* [`tls_ca_cert_file`](#-redis--sentinel--tls_ca_cert_file)
+* [`tls_ca_cert_dir`](#-redis--sentinel--tls_ca_cert_dir)
+* [`tls_auth_clients`](#-redis--sentinel--tls_auth_clients)
+* [`tls_replication`](#-redis--sentinel--tls_replication)
+* [`working_dir`](#-redis--sentinel--working_dir)
+* [`notification_script`](#-redis--sentinel--notification_script)
+* [`client_reconfig_script`](#-redis--sentinel--client_reconfig_script)
+* [`service_ensure`](#-redis--sentinel--service_ensure)
 
-Data type: `Optional[String[1]]`
+##### <a name="-redis--sentinel--auth_pass"></a>`auth_pass`
+
+Data type: `Optional[Variant[String[1], Sensitive[String[1]]]]`
 
 The password to use to authenticate with the master and slaves.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `config_file`
+##### <a name="-redis--sentinel--config_file"></a>`config_file`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -995,7 +1538,7 @@ The location and name of the sentinel config file.
 
 Default value: `$redis::params::sentinel_config_file`
 
-##### `config_file_orig`
+##### <a name="-redis--sentinel--config_file_orig"></a>`config_file_orig`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -1007,7 +1550,7 @@ changes from the manifests.
 
 Default value: `$redis::params::sentinel_config_file_orig`
 
-##### `config_file_mode`
+##### <a name="-redis--sentinel--config_file_mode"></a>`config_file_mode`
 
 Data type: `Stdlib::Filemode`
 
@@ -1015,7 +1558,7 @@ Permissions of config file.
 
 Default value: `'0644'`
 
-##### `conf_template`
+##### <a name="-redis--sentinel--conf_template"></a>`conf_template`
 
 Data type: `String[1]`
 
@@ -1023,7 +1566,7 @@ Define which template to use.
 
 Default value: `'redis/redis-sentinel.conf.erb'`
 
-##### `daemonize`
+##### <a name="-redis--sentinel--daemonize"></a>`daemonize`
 
 Data type: `Boolean`
 
@@ -1031,7 +1574,7 @@ Have Redis sentinel run as a daemon.
 
 Default value: `$redis::params::sentinel_daemonize`
 
-##### `down_after`
+##### <a name="-redis--sentinel--down_after"></a>`down_after`
 
 Data type: `Integer[1]`
 
@@ -1041,7 +1584,7 @@ for the specified period) in order to consider it in S_DOWN state.
 
 Default value: `30000`
 
-##### `failover_timeout`
+##### <a name="-redis--sentinel--failover_timeout"></a>`failover_timeout`
 
 Data type: `Integer[1]`
 
@@ -1049,7 +1592,7 @@ Specify the failover timeout in milliseconds.
 
 Default value: `180000`
 
-##### `log_file`
+##### <a name="-redis--sentinel--log_file"></a>`log_file`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -1057,7 +1600,7 @@ Specify where to write log entries.
 
 Default value: `$redis::params::sentinel_log_file`
 
-##### `log_level`
+##### <a name="-redis--sentinel--log_level"></a>`log_level`
 
 Data type: `Redis::LogLevel`
 
@@ -1065,7 +1608,7 @@ Specify how much we should log.
 
 Default value: `'notice'`
 
-##### `master_name`
+##### <a name="-redis--sentinel--master_name"></a>`master_name`
 
 Data type: `String[1]`
 
@@ -1074,7 +1617,7 @@ The valid charset is A-z 0-9 and the three characters ".-_".
 
 Default value: `'mymaster'`
 
-##### `redis_host`
+##### <a name="-redis--sentinel--redis_host"></a>`redis_host`
 
 Data type: `Stdlib::Host`
 
@@ -1082,7 +1625,7 @@ Specify the bound host of the master redis server.
 
 Default value: `'127.0.0.1'`
 
-##### `redis_port`
+##### <a name="-redis--sentinel--redis_port"></a>`redis_port`
 
 Data type: `Stdlib::Port`
 
@@ -1090,15 +1633,23 @@ Specify the port of the master redis server.
 
 Default value: `6379`
 
-##### `protected_mode`
+##### <a name="-redis--sentinel--requirepass"></a>`requirepass`
+
+Data type: `Optional[String[1]]`
+
+Specify the password to require client authentication via the AUTH command, however this feature is only available starting with Redis 5.0.1.
+
+Default value: `undef`
+
+##### <a name="-redis--sentinel--protected_mode"></a>`protected_mode`
 
 Data type: `Boolean`
 
 Whether protected mode is enabled or not. Only applicable when no bind is set.
 
-Default value: `$redis::params::sentinel_protected_mode`
+Default value: `true`
 
-##### `package_name`
+##### <a name="-redis--sentinel--package_name"></a>`package_name`
 
 Data type: `String[1]`
 
@@ -1106,15 +1657,16 @@ The name of the package that installs sentinel.
 
 Default value: `$redis::params::sentinel_package_name`
 
-##### `package_ensure`
+##### <a name="-redis--sentinel--package_ensure"></a>`package_ensure`
 
 Data type: `String[1]`
 
-Do we ensure this package.
+Do we ensure this package. This parameter takes effect only if
+an independent package is required for sentinel.
 
-Default value: `'present'`
+Default value: `'installed'`
 
-##### `parallel_sync`
+##### <a name="-redis--sentinel--parallel_sync"></a>`parallel_sync`
 
 Data type: `Integer[0]`
 
@@ -1123,7 +1675,7 @@ new master after a failover.
 
 Default value: `1`
 
-##### `pid_file`
+##### <a name="-redis--sentinel--pid_file"></a>`pid_file`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -1131,7 +1683,7 @@ If sentinel is daemonized it will write its pid at this location.
 
 Default value: `$redis::params::sentinel_pid_file`
 
-##### `quorum`
+##### <a name="-redis--sentinel--quorum"></a>`quorum`
 
 Data type: `Integer[1]`
 
@@ -1140,16 +1692,33 @@ signal sdown state.
 
 Default value: `2`
 
-##### `sentinel_bind`
+##### <a name="-redis--sentinel--sentinel_announce_hostnames"></a>`sentinel_announce_hostnames`
+
+Data type: `Optional[Enum['yes', 'no']]`
+
+Whether or not sentinels will announce hostnames instead of ip addresses
+to clients.  This can be required for TLS.
+
+Default value: `undef`
+
+##### <a name="-redis--sentinel--sentinel_announce_ip"></a>`sentinel_announce_ip`
+
+Data type: `Optional[Stdlib::Host]`
+
+Specify the IP or hostname that Sentinel will announce
+
+Default value: `undef`
+
+##### <a name="-redis--sentinel--sentinel_bind"></a>`sentinel_bind`
 
 Data type: `Variant[Undef, Stdlib::IP::Address, Array[Stdlib::IP::Address]]`
 
 Allow optional sentinel server ip binding.  Can help overcome
 issues arising from protect-mode added Redis 3.2
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `sentinel_port`
+##### <a name="-redis--sentinel--sentinel_port"></a>`sentinel_port`
 
 Data type: `Stdlib::Port`
 
@@ -1157,7 +1726,23 @@ The port of sentinel server.
 
 Default value: `26379`
 
-##### `service_group`
+##### <a name="-redis--sentinel--sentinel_resolve_hostnames"></a>`sentinel_resolve_hostnames`
+
+Data type: `Optional[Enum['yes', 'no']]`
+
+Whether or not sentinels can resolve hostnames to ip addresses.
+
+Default value: `undef`
+
+##### <a name="-redis--sentinel--sentinel_tls_port"></a>`sentinel_tls_port`
+
+Data type: `Optional[Stdlib::Port::Unprivileged]`
+
+Configure which TLS port to listen on.
+
+Default value: `undef`
+
+##### <a name="-redis--sentinel--service_group"></a>`service_group`
 
 Data type: `String[1]`
 
@@ -1165,7 +1750,7 @@ The group of the config file.
 
 Default value: `'redis'`
 
-##### `service_name`
+##### <a name="-redis--sentinel--service_name"></a>`service_name`
 
 Data type: `String[1]`
 
@@ -1173,7 +1758,7 @@ The name of the service (for puppet to manage).
 
 Default value: `$redis::params::sentinel_service_name`
 
-##### `service_user`
+##### <a name="-redis--sentinel--service_user"></a>`service_user`
 
 Data type: `String[1]`
 
@@ -1181,15 +1766,63 @@ The owner of the config file.
 
 Default value: `'redis'`
 
-##### `service_enable`
+##### <a name="-redis--sentinel--service_enable"></a>`service_enable`
 
 Data type: `Boolean`
 
 Enable the service at boot time.
 
-Default value: ``true``
+Default value: `true`
 
-##### `working_dir`
+##### <a name="-redis--sentinel--tls_cert_file"></a>`tls_cert_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which X.509 certificate file to use for TLS connections.
+
+Default value: `undef`
+
+##### <a name="-redis--sentinel--tls_key_file"></a>`tls_key_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which privaye key file to use for TLS connections.
+
+Default value: `undef`
+
+##### <a name="-redis--sentinel--tls_ca_cert_file"></a>`tls_ca_cert_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which X.509 CA certificate(s) bundle file to use.
+
+Default value: `undef`
+
+##### <a name="-redis--sentinel--tls_ca_cert_dir"></a>`tls_ca_cert_dir`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which X.509 CA certificate(s) bundle directory to use.
+
+Default value: `undef`
+
+##### <a name="-redis--sentinel--tls_auth_clients"></a>`tls_auth_clients`
+
+Data type: `Enum['yes', 'no', 'optional']`
+
+Specify if clients and replicas are required to authenticate using valid client side certificates.
+
+Default value: `'no'`
+
+##### <a name="-redis--sentinel--tls_replication"></a>`tls_replication`
+
+Data type: `Boolean`
+
+Specify if TLS should be enabled on replication links.
+
+Default value: `false`
+
+##### <a name="-redis--sentinel--working_dir"></a>`working_dir`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -1198,23 +1831,23 @@ conflicts.
 
 Default value: `$redis::params::sentinel_working_dir`
 
-##### `notification_script`
+##### <a name="-redis--sentinel--notification_script"></a>`notification_script`
 
 Data type: `Optional[Stdlib::Absolutepath]`
 
 Path to the notification script
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `client_reconfig_script`
+##### <a name="-redis--sentinel--client_reconfig_script"></a>`client_reconfig_script`
 
 Data type: `Optional[Stdlib::Absolutepath]`
 
 Path to the client-reconfig script
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `service_ensure`
+##### <a name="-redis--sentinel--service_ensure"></a>`service_ensure`
 
 Data type: `Stdlib::Ensure::Service`
 
@@ -1232,7 +1865,7 @@ Default value: ``true``
 
 ## Defined types
 
-### `redis::instance`
+### <a name="redis--instance"></a>`redis::instance`
 
 This is an defined type to allow the configuration of
 multiple redis instances on one machine without conflicts
@@ -1249,9 +1882,131 @@ redis::instance {'6380':
 
 #### Parameters
 
-The following parameters are available in the `redis::instance` defined type.
+The following parameters are available in the `redis::instance` defined type:
 
-##### `activerehashing`
+* [`activerehashing`](#-redis--instance--activerehashing)
+* [`aof_load_truncated`](#-redis--instance--aof_load_truncated)
+* [`aof_rewrite_incremental_fsync`](#-redis--instance--aof_rewrite_incremental_fsync)
+* [`appendfilename`](#-redis--instance--appendfilename)
+* [`appendfsync`](#-redis--instance--appendfsync)
+* [`appendonly`](#-redis--instance--appendonly)
+* [`auto_aof_rewrite_min_size`](#-redis--instance--auto_aof_rewrite_min_size)
+* [`auto_aof_rewrite_percentage`](#-redis--instance--auto_aof_rewrite_percentage)
+* [`bind`](#-redis--instance--bind)
+* [`config_file_orig`](#-redis--instance--config_file_orig)
+* [`config_file`](#-redis--instance--config_file)
+* [`config_file_mode`](#-redis--instance--config_file_mode)
+* [`config_group`](#-redis--instance--config_group)
+* [`config_owner`](#-redis--instance--config_owner)
+* [`conf_template`](#-redis--instance--conf_template)
+* [`daemonize`](#-redis--instance--daemonize)
+* [`databases`](#-redis--instance--databases)
+* [`dbfilename`](#-redis--instance--dbfilename)
+* [`extra_config_file`](#-redis--instance--extra_config_file)
+* [`hash_max_ziplist_entries`](#-redis--instance--hash_max_ziplist_entries)
+* [`hash_max_ziplist_value`](#-redis--instance--hash_max_ziplist_value)
+* [`hll_sparse_max_bytes`](#-redis--instance--hll_sparse_max_bytes)
+* [`hz`](#-redis--instance--hz)
+* [`latency_monitor_threshold`](#-redis--instance--latency_monitor_threshold)
+* [`list_max_ziplist_entries`](#-redis--instance--list_max_ziplist_entries)
+* [`list_max_ziplist_value`](#-redis--instance--list_max_ziplist_value)
+* [`log_dir`](#-redis--instance--log_dir)
+* [`log_dir_mode`](#-redis--instance--log_dir_mode)
+* [`log_file`](#-redis--instance--log_file)
+* [`log_level`](#-redis--instance--log_level)
+* [`masterauth`](#-redis--instance--masterauth)
+* [`maxclients`](#-redis--instance--maxclients)
+* [`maxmemory`](#-redis--instance--maxmemory)
+* [`maxmemory_policy`](#-redis--instance--maxmemory_policy)
+* [`maxmemory_samples`](#-redis--instance--maxmemory_samples)
+* [`min_slaves_max_lag`](#-redis--instance--min_slaves_max_lag)
+* [`min_slaves_to_write`](#-redis--instance--min_slaves_to_write)
+* [`modules`](#-redis--instance--modules)
+* [`no_appendfsync_on_rewrite`](#-redis--instance--no_appendfsync_on_rewrite)
+* [`notify_keyspace_events`](#-redis--instance--notify_keyspace_events)
+* [`notify_service`](#-redis--instance--notify_service)
+* [`pid_file`](#-redis--instance--pid_file)
+* [`port`](#-redis--instance--port)
+* [`protected_mode`](#-redis--instance--protected_mode)
+* [`rdbcompression`](#-redis--instance--rdbcompression)
+* [`rename_commands`](#-redis--instance--rename_commands)
+* [`repl_announce_ip`](#-redis--instance--repl_announce_ip)
+* [`repl_announce_port`](#-redis--instance--repl_announce_port)
+* [`repl_backlog_size`](#-redis--instance--repl_backlog_size)
+* [`repl_backlog_ttl`](#-redis--instance--repl_backlog_ttl)
+* [`repl_disable_tcp_nodelay`](#-redis--instance--repl_disable_tcp_nodelay)
+* [`repl_ping_slave_period`](#-redis--instance--repl_ping_slave_period)
+* [`repl_timeout`](#-redis--instance--repl_timeout)
+* [`requirepass`](#-redis--instance--requirepass)
+* [`save_db_to_disk`](#-redis--instance--save_db_to_disk)
+* [`save_db_to_disk_interval`](#-redis--instance--save_db_to_disk_interval)
+* [`service_name`](#-redis--instance--service_name)
+* [`service_enable`](#-redis--instance--service_enable)
+* [`service_ensure`](#-redis--instance--service_ensure)
+* [`service_group`](#-redis--instance--service_group)
+* [`service_user`](#-redis--instance--service_user)
+* [`service_timeout_start`](#-redis--instance--service_timeout_start)
+* [`service_timeout_stop`](#-redis--instance--service_timeout_stop)
+* [`set_max_intset_entries`](#-redis--instance--set_max_intset_entries)
+* [`slave_priority`](#-redis--instance--slave_priority)
+* [`slave_read_only`](#-redis--instance--slave_read_only)
+* [`slave_serve_stale_data`](#-redis--instance--slave_serve_stale_data)
+* [`slaveof`](#-redis--instance--slaveof)
+* [`replicaof`](#-redis--instance--replicaof)
+* [`slowlog_log_slower_than`](#-redis--instance--slowlog_log_slower_than)
+* [`slowlog_max_len`](#-redis--instance--slowlog_max_len)
+* [`stop_writes_on_bgsave_error`](#-redis--instance--stop_writes_on_bgsave_error)
+* [`syslog_enabled`](#-redis--instance--syslog_enabled)
+* [`syslog_facility`](#-redis--instance--syslog_facility)
+* [`tcp_backlog`](#-redis--instance--tcp_backlog)
+* [`tcp_keepalive`](#-redis--instance--tcp_keepalive)
+* [`timeout`](#-redis--instance--timeout)
+* [`tls_port`](#-redis--instance--tls_port)
+* [`tls_cert_file`](#-redis--instance--tls_cert_file)
+* [`tls_key_file`](#-redis--instance--tls_key_file)
+* [`tls_ca_cert_file`](#-redis--instance--tls_ca_cert_file)
+* [`tls_ca_cert_dir`](#-redis--instance--tls_ca_cert_dir)
+* [`tls_auth_clients`](#-redis--instance--tls_auth_clients)
+* [`tls_replication`](#-redis--instance--tls_replication)
+* [`tls_cluster`](#-redis--instance--tls_cluster)
+* [`tls_ciphers`](#-redis--instance--tls_ciphers)
+* [`tls_ciphersuites`](#-redis--instance--tls_ciphersuites)
+* [`tls_protocols`](#-redis--instance--tls_protocols)
+* [`tls_prefer_server_ciphers`](#-redis--instance--tls_prefer_server_ciphers)
+* [`ulimit`](#-redis--instance--ulimit)
+* [`ulimit_managed`](#-redis--instance--ulimit_managed)
+* [`unixsocket`](#-redis--instance--unixsocket)
+* [`unixsocketperm`](#-redis--instance--unixsocketperm)
+* [`workdir`](#-redis--instance--workdir)
+* [`workdir_mode`](#-redis--instance--workdir_mode)
+* [`zset_max_ziplist_entries`](#-redis--instance--zset_max_ziplist_entries)
+* [`zset_max_ziplist_value`](#-redis--instance--zset_max_ziplist_value)
+* [`cluster_enabled`](#-redis--instance--cluster_enabled)
+* [`cluster_config_file`](#-redis--instance--cluster_config_file)
+* [`cluster_node_timeout`](#-redis--instance--cluster_node_timeout)
+* [`cluster_slave_validity_factor`](#-redis--instance--cluster_slave_validity_factor)
+* [`cluster_require_full_coverage`](#-redis--instance--cluster_require_full_coverage)
+* [`cluster_migration_barrier`](#-redis--instance--cluster_migration_barrier)
+* [`io_threads`](#-redis--instance--io_threads)
+* [`io_threads_do_reads`](#-redis--instance--io_threads_do_reads)
+* [`cluster_allow_reads_when_down`](#-redis--instance--cluster_allow_reads_when_down)
+* [`cluster_replica_no_failover`](#-redis--instance--cluster_replica_no_failover)
+* [`dynamic_hz`](#-redis--instance--dynamic_hz)
+* [`activedefrag`](#-redis--instance--activedefrag)
+* [`active_defrag_ignore_bytes`](#-redis--instance--active_defrag_ignore_bytes)
+* [`active_defrag_threshold_lower`](#-redis--instance--active_defrag_threshold_lower)
+* [`active_defrag_threshold_upper`](#-redis--instance--active_defrag_threshold_upper)
+* [`active_defrag_cycle_min`](#-redis--instance--active_defrag_cycle_min)
+* [`active_defrag_cycle_max`](#-redis--instance--active_defrag_cycle_max)
+* [`active_defrag_max_scan_fields`](#-redis--instance--active_defrag_max_scan_fields)
+* [`jemalloc_bg_thread`](#-redis--instance--jemalloc_bg_thread)
+* [`rdb_save_incremental_fsync`](#-redis--instance--rdb_save_incremental_fsync)
+* [`output_buffer_limit_slave`](#-redis--instance--output_buffer_limit_slave)
+* [`output_buffer_limit_pubsub`](#-redis--instance--output_buffer_limit_pubsub)
+* [`managed_by_cluster_manager`](#-redis--instance--managed_by_cluster_manager)
+* [`manage_service_file`](#-redis--instance--manage_service_file)
+
+##### <a name="-redis--instance--activerehashing"></a>`activerehashing`
 
 Data type: `Boolean`
 
@@ -1259,7 +2014,7 @@ Enable/disable active rehashing.
 
 Default value: `$redis::activerehashing`
 
-##### `aof_load_truncated`
+##### <a name="-redis--instance--aof_load_truncated"></a>`aof_load_truncated`
 
 Data type: `Boolean`
 
@@ -1267,7 +2022,7 @@ Enable/disable loading truncated AOF file
 
 Default value: `$redis::aof_load_truncated`
 
-##### `aof_rewrite_incremental_fsync`
+##### <a name="-redis--instance--aof_rewrite_incremental_fsync"></a>`aof_rewrite_incremental_fsync`
 
 Data type: `Boolean`
 
@@ -1275,7 +2030,7 @@ Enable/disable fsync for AOF file
 
 Default value: `$redis::aof_rewrite_incremental_fsync`
 
-##### `appendfilename`
+##### <a name="-redis--instance--appendfilename"></a>`appendfilename`
 
 Data type: `String[1]`
 
@@ -1283,7 +2038,7 @@ The name of the append only file
 
 Default value: `$redis::appendfilename`
 
-##### `appendfsync`
+##### <a name="-redis--instance--appendfsync"></a>`appendfsync`
 
 Data type: `Enum['no', 'always', 'everysec']`
 
@@ -1291,7 +2046,7 @@ Adjust fsync mode. Valid options: always, everysec, no.
 
 Default value: `$redis::appendfsync`
 
-##### `appendonly`
+##### <a name="-redis--instance--appendonly"></a>`appendonly`
 
 Data type: `Boolean`
 
@@ -1299,7 +2054,7 @@ Enable/disable appendonly mode.
 
 Default value: `$redis::appendonly`
 
-##### `auto_aof_rewrite_min_size`
+##### <a name="-redis--instance--auto_aof_rewrite_min_size"></a>`auto_aof_rewrite_min_size`
 
 Data type: `String[1]`
 
@@ -1307,7 +2062,7 @@ Adjust minimum size for auto-aof-rewrite.
 
 Default value: `$redis::auto_aof_rewrite_min_size`
 
-##### `auto_aof_rewrite_percentage`
+##### <a name="-redis--instance--auto_aof_rewrite_percentage"></a>`auto_aof_rewrite_percentage`
 
 Data type: `Integer[0]`
 
@@ -1315,7 +2070,7 @@ Adjust percentatge for auto-aof-rewrite.
 
 Default value: `$redis::auto_aof_rewrite_percentage`
 
-##### `bind`
+##### <a name="-redis--instance--bind"></a>`bind`
 
 Data type: `Variant[Stdlib::IP::Address, Array[Stdlib::IP::Address]]`
 
@@ -1323,7 +2078,7 @@ Configure which IP address(es) to listen on. To bind on all interfaces, use an e
 
 Default value: `$redis::bind`
 
-##### `config_file_orig`
+##### <a name="-redis--instance--config_file_orig"></a>`config_file_orig`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -1331,7 +2086,7 @@ The location and name of a config file that provides the source
 
 Default value: `$redis::config_file_orig`
 
-##### `config_file`
+##### <a name="-redis--instance--config_file"></a>`config_file`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -1339,7 +2094,7 @@ Adjust main configuration file.
 
 Default value: `$redis::config_file`
 
-##### `config_file_mode`
+##### <a name="-redis--instance--config_file_mode"></a>`config_file_mode`
 
 Data type: `Stdlib::Filemode`
 
@@ -1347,7 +2102,7 @@ Adjust permissions for configuration files.
 
 Default value: `$redis::config_file_mode`
 
-##### `config_group`
+##### <a name="-redis--instance--config_group"></a>`config_group`
 
 Data type: `String[1]`
 
@@ -1355,7 +2110,7 @@ Adjust filesystem group for config files.
 
 Default value: `$redis::config_group`
 
-##### `config_owner`
+##### <a name="-redis--instance--config_owner"></a>`config_owner`
 
 Data type: `String[1]`
 
@@ -1363,7 +2118,7 @@ Adjust filesystem owner for config files.
 
 Default value: `$redis::config_owner`
 
-##### `conf_template`
+##### <a name="-redis--instance--conf_template"></a>`conf_template`
 
 Data type: `String[1]`
 
@@ -1371,15 +2126,15 @@ Define which template to use.
 
 Default value: `$redis::conf_template`
 
-##### `daemonize`
+##### <a name="-redis--instance--daemonize"></a>`daemonize`
 
 Data type: `Boolean`
 
 Have Redis run as a daemon.
 
-Default value: ``true``
+Default value: `true`
 
-##### `databases`
+##### <a name="-redis--instance--databases"></a>`databases`
 
 Data type: `Integer[1]`
 
@@ -1387,7 +2142,7 @@ Set the number of databases.
 
 Default value: `$redis::databases`
 
-##### `dbfilename`
+##### <a name="-redis--instance--dbfilename"></a>`dbfilename`
 
 Data type: `Variant[String[1], Boolean]`
 
@@ -1395,7 +2150,7 @@ The filename where to dump the DB
 
 Default value: `$redis::dbfilename`
 
-##### `extra_config_file`
+##### <a name="-redis--instance--extra_config_file"></a>`extra_config_file`
 
 Data type: `Optional[String]`
 
@@ -1403,7 +2158,7 @@ Optional extra config file to include
 
 Default value: `$redis::extra_config_file`
 
-##### `hash_max_ziplist_entries`
+##### <a name="-redis--instance--hash_max_ziplist_entries"></a>`hash_max_ziplist_entries`
 
 Data type: `Integer[0]`
 
@@ -1411,7 +2166,7 @@ Set max ziplist entries for hashes.
 
 Default value: `$redis::hash_max_ziplist_entries`
 
-##### `hash_max_ziplist_value`
+##### <a name="-redis--instance--hash_max_ziplist_value"></a>`hash_max_ziplist_value`
 
 Data type: `Integer[0]`
 
@@ -1419,7 +2174,7 @@ Set max ziplist values for hashes.
 
 Default value: `$redis::hash_max_ziplist_value`
 
-##### `hll_sparse_max_bytes`
+##### <a name="-redis--instance--hll_sparse_max_bytes"></a>`hll_sparse_max_bytes`
 
 Data type: `Integer[0]`
 
@@ -1427,7 +2182,7 @@ HyperLogLog sparse representation bytes limit
 
 Default value: `$redis::hll_sparse_max_bytes`
 
-##### `hz`
+##### <a name="-redis--instance--hz"></a>`hz`
 
 Data type: `Integer[1, 500]`
 
@@ -1435,7 +2190,7 @@ Set redis background tasks frequency
 
 Default value: `$redis::hz`
 
-##### `latency_monitor_threshold`
+##### <a name="-redis--instance--latency_monitor_threshold"></a>`latency_monitor_threshold`
 
 Data type: `Integer[0]`
 
@@ -1443,7 +2198,7 @@ Latency monitoring threshold in milliseconds
 
 Default value: `$redis::latency_monitor_threshold`
 
-##### `list_max_ziplist_entries`
+##### <a name="-redis--instance--list_max_ziplist_entries"></a>`list_max_ziplist_entries`
 
 Data type: `Integer[0]`
 
@@ -1451,7 +2206,7 @@ Set max ziplist entries for lists.
 
 Default value: `$redis::list_max_ziplist_entries`
 
-##### `list_max_ziplist_value`
+##### <a name="-redis--instance--list_max_ziplist_value"></a>`list_max_ziplist_value`
 
 Data type: `Integer[0]`
 
@@ -1459,7 +2214,7 @@ Set max ziplist values for lists.
 
 Default value: `$redis::list_max_ziplist_value`
 
-##### `log_dir`
+##### <a name="-redis--instance--log_dir"></a>`log_dir`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -1467,7 +2222,7 @@ Specify directory where to write log entries.
 
 Default value: `$redis::log_dir`
 
-##### `log_dir_mode`
+##### <a name="-redis--instance--log_dir_mode"></a>`log_dir_mode`
 
 Data type: `Stdlib::Filemode`
 
@@ -1475,15 +2230,16 @@ Adjust mode for directory containing log files.
 
 Default value: `$redis::log_dir_mode`
 
-##### `log_file`
+##### <a name="-redis--instance--log_file"></a>`log_file`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `String`
 
-Specify file where to write log entries.
+Specify file where to write log entries. Relative paths will be prepended
+with log_dir but absolute paths are also accepted.
 
-Default value: ``undef``
+Default value: `"redis-server-${name}.log"`
 
-##### `log_level`
+##### <a name="-redis--instance--log_level"></a>`log_level`
 
 Data type: `Redis::LogLevel`
 
@@ -1491,15 +2247,15 @@ Specify the server verbosity level.
 
 Default value: `$redis::log_level`
 
-##### `masterauth`
+##### <a name="-redis--instance--masterauth"></a>`masterauth`
 
-Data type: `Optional[String[1]]`
+Data type: `Optional[Variant[String[1], Sensitive[String[1]]]]`
 
 If the master is password protected (using the "requirepass" configuration
 
 Default value: `$redis::masterauth`
 
-##### `maxclients`
+##### <a name="-redis--instance--maxclients"></a>`maxclients`
 
 Data type: `Integer[1]`
 
@@ -1507,31 +2263,31 @@ Set the max number of connected clients at the same time.
 
 Default value: `$redis::maxclients`
 
-##### `maxmemory`
+##### <a name="-redis--instance--maxmemory"></a>`maxmemory`
 
-Data type: `Any`
+Data type: `Optional[Variant[Integer, String]]`
 
 Don't use more memory than the specified amount of bytes.
 
 Default value: `$redis::maxmemory`
 
-##### `maxmemory_policy`
+##### <a name="-redis--instance--maxmemory_policy"></a>`maxmemory_policy`
 
-Data type: `Any`
+Data type: `Optional[Redis::MemoryPolicy]`
 
 How Redis will select what to remove when maxmemory is reached.
 
 Default value: `$redis::maxmemory_policy`
 
-##### `maxmemory_samples`
+##### <a name="-redis--instance--maxmemory_samples"></a>`maxmemory_samples`
 
-Data type: `Any`
+Data type: `Optional[Integer[1, 10]]`
 
 Select as well the sample size to check.
 
 Default value: `$redis::maxmemory_samples`
 
-##### `min_slaves_max_lag`
+##### <a name="-redis--instance--min_slaves_max_lag"></a>`min_slaves_max_lag`
 
 Data type: `Integer[0]`
 
@@ -1539,7 +2295,7 @@ The lag in seconds
 
 Default value: `$redis::min_slaves_max_lag`
 
-##### `min_slaves_to_write`
+##### <a name="-redis--instance--min_slaves_to_write"></a>`min_slaves_to_write`
 
 Data type: `Integer[0]`
 
@@ -1547,7 +2303,15 @@ Minimum number of slaves to be in "online" state
 
 Default value: `$redis::min_slaves_to_write`
 
-##### `no_appendfsync_on_rewrite`
+##### <a name="-redis--instance--modules"></a>`modules`
+
+Data type: `Array[Stdlib::Absolutepath]`
+
+Additional redis modules to load (.so path)
+
+Default value: `$redis::modules`
+
+##### <a name="-redis--instance--no_appendfsync_on_rewrite"></a>`no_appendfsync_on_rewrite`
 
 Data type: `Boolean`
 
@@ -1555,7 +2319,7 @@ If you have latency problems turn this to 'true'. Otherwise leave it as
 
 Default value: `$redis::no_appendfsync_on_rewrite`
 
-##### `notify_keyspace_events`
+##### <a name="-redis--instance--notify_keyspace_events"></a>`notify_keyspace_events`
 
 Data type: `Optional[String[1]]`
 
@@ -1563,15 +2327,23 @@ Which events to notify Pub/Sub clients about events happening
 
 Default value: `$redis::notify_keyspace_events`
 
-##### `pid_file`
+##### <a name="-redis--instance--notify_service"></a>`notify_service`
+
+Data type: `Boolean`
+
+You may disable instance service reloads when config file changes
+
+Default value: `true`
+
+##### <a name="-redis--instance--pid_file"></a>`pid_file`
 
 Data type: `Stdlib::Absolutepath`
 
 Where to store the pid.
 
-Default value: `"/var/run/redis/redis-server-${name}.pid"`
+Default value: `"/var/run/${service_name}/redis.pid"`
 
-##### `port`
+##### <a name="-redis--instance--port"></a>`port`
 
 Data type: `Stdlib::Port`
 
@@ -1579,7 +2351,7 @@ Configure which port to listen on.
 
 Default value: `$redis::port`
 
-##### `protected_mode`
+##### <a name="-redis--instance--protected_mode"></a>`protected_mode`
 
 Data type: `Boolean`
 
@@ -1587,7 +2359,7 @@ Whether protected mode is enabled or not.  Only applicable when no bind is set.
 
 Default value: `$redis::protected_mode`
 
-##### `rdbcompression`
+##### <a name="-redis--instance--rdbcompression"></a>`rdbcompression`
 
 Data type: `Boolean`
 
@@ -1595,7 +2367,31 @@ Enable/disable compression of string objects using LZF when dumping.
 
 Default value: `$redis::rdbcompression`
 
-##### `repl_backlog_size`
+##### <a name="-redis--instance--rename_commands"></a>`rename_commands`
+
+Data type: `Hash[String,String]`
+
+A list of Redis commands to rename or disable for security reasons
+
+Default value: `$redis::rename_commands`
+
+##### <a name="-redis--instance--repl_announce_ip"></a>`repl_announce_ip`
+
+Data type: `Optional[Stdlib::Host]`
+
+The specific IP or hostname a replica will report to its master
+
+Default value: `$redis::repl_announce_ip`
+
+##### <a name="-redis--instance--repl_announce_port"></a>`repl_announce_port`
+
+Data type: `Optional[Stdlib::Port]`
+
+The specific port a replica will report to its master
+
+Default value: `$redis::repl_announce_port`
+
+##### <a name="-redis--instance--repl_backlog_size"></a>`repl_backlog_size`
 
 Data type: `String[1]`
 
@@ -1603,7 +2399,7 @@ The replication backlog size
 
 Default value: `$redis::repl_backlog_size`
 
-##### `repl_backlog_ttl`
+##### <a name="-redis--instance--repl_backlog_ttl"></a>`repl_backlog_ttl`
 
 Data type: `Integer[0]`
 
@@ -1611,7 +2407,7 @@ The number of seconds to elapse before freeing backlog buffer
 
 Default value: `$redis::repl_backlog_ttl`
 
-##### `repl_disable_tcp_nodelay`
+##### <a name="-redis--instance--repl_disable_tcp_nodelay"></a>`repl_disable_tcp_nodelay`
 
 Data type: `Boolean`
 
@@ -1619,7 +2415,7 @@ Enable/disable TCP_NODELAY on the slave socket after SYNC
 
 Default value: `$redis::repl_disable_tcp_nodelay`
 
-##### `repl_ping_slave_period`
+##### <a name="-redis--instance--repl_ping_slave_period"></a>`repl_ping_slave_period`
 
 Data type: `Integer[1]`
 
@@ -1627,7 +2423,7 @@ Slaves send PINGs to server in a predefined interval. It's possible
 
 Default value: `$redis::repl_ping_slave_period`
 
-##### `repl_timeout`
+##### <a name="-redis--instance--repl_timeout"></a>`repl_timeout`
 
 Data type: `Integer[1]`
 
@@ -1635,7 +2431,7 @@ Set the replication timeout for:
 
 Default value: `$redis::repl_timeout`
 
-##### `requirepass`
+##### <a name="-redis--instance--requirepass"></a>`requirepass`
 
 Data type: `Optional[String]`
 
@@ -1644,7 +2440,7 @@ commands.
 
 Default value: `$redis::requirepass`
 
-##### `save_db_to_disk`
+##### <a name="-redis--instance--save_db_to_disk"></a>`save_db_to_disk`
 
 Data type: `Boolean`
 
@@ -1652,7 +2448,7 @@ Set if save db to disk.
 
 Default value: `$redis::save_db_to_disk`
 
-##### `save_db_to_disk_interval`
+##### <a name="-redis--instance--save_db_to_disk_interval"></a>`save_db_to_disk_interval`
 
 Data type: `Hash`
 
@@ -1660,7 +2456,7 @@ save the dataset every N seconds if there are at least M changes in the dataset
 
 Default value: `$redis::save_db_to_disk_interval`
 
-##### `service_name`
+##### <a name="-redis--instance--service_name"></a>`service_name`
 
 Data type: `String[1]`
 
@@ -1668,7 +2464,7 @@ The service name for this instance
 
 Default value: `"redis-server-${name}"`
 
-##### `service_enable`
+##### <a name="-redis--instance--service_enable"></a>`service_enable`
 
 Data type: `Boolean`
 
@@ -1676,7 +2472,7 @@ Enable/disable daemon at boot.
 
 Default value: `$redis::service_enable`
 
-##### `service_ensure`
+##### <a name="-redis--instance--service_ensure"></a>`service_ensure`
 
 Data type: `Stdlib::Ensure::Service`
 
@@ -1684,7 +2480,7 @@ Specify if the server should be running.
 
 Default value: `$redis::service_ensure`
 
-##### `service_group`
+##### <a name="-redis--instance--service_group"></a>`service_group`
 
 Data type: `String[1]`
 
@@ -1692,7 +2488,7 @@ Specify which group to run as.
 
 Default value: `$redis::service_group`
 
-##### `service_user`
+##### <a name="-redis--instance--service_user"></a>`service_user`
 
 Data type: `String[1]`
 
@@ -1700,7 +2496,23 @@ Specify which user to run as.
 
 Default value: `$redis::service_user`
 
-##### `set_max_intset_entries`
+##### <a name="-redis--instance--service_timeout_start"></a>`service_timeout_start`
+
+Data type: `Optional[Integer[0]]`
+
+Specify the time after which a service startup should be considered as failed.
+
+Default value: `$redis::service_timeout_start`
+
+##### <a name="-redis--instance--service_timeout_stop"></a>`service_timeout_stop`
+
+Data type: `Optional[Integer[0]]`
+
+Specify the time after which a service stop should be considered as failed.
+
+Default value: `$redis::service_timeout_stop`
+
+##### <a name="-redis--instance--set_max_intset_entries"></a>`set_max_intset_entries`
 
 Data type: `Integer[0]`
 
@@ -1709,7 +2521,7 @@ in order to use this special memory saving encoding.
 
 Default value: `$redis::set_max_intset_entries`
 
-##### `slave_priority`
+##### <a name="-redis--instance--slave_priority"></a>`slave_priority`
 
 Data type: `Integer[0]`
 
@@ -1717,7 +2529,7 @@ The priority number for slave promotion by Sentinel
 
 Default value: `$redis::slave_priority`
 
-##### `slave_read_only`
+##### <a name="-redis--instance--slave_read_only"></a>`slave_read_only`
 
 Data type: `Boolean`
 
@@ -1725,7 +2537,7 @@ You can configure a slave instance to accept writes or not.
 
 Default value: `$redis::slave_read_only`
 
-##### `slave_serve_stale_data`
+##### <a name="-redis--instance--slave_serve_stale_data"></a>`slave_serve_stale_data`
 
 Data type: `Boolean`
 
@@ -1740,7 +2552,7 @@ is still in progress, the slave can act in two different ways:
 
 Default value: `$redis::slave_serve_stale_data`
 
-##### `slaveof`
+##### <a name="-redis--instance--slaveof"></a>`slaveof`
 
 Data type: `Optional[String[1]]`
 
@@ -1748,16 +2560,24 @@ Use slaveof to make a Redis instance a copy of another Redis server.
 
 Default value: `$redis::slaveof`
 
-##### `slowlog_log_slower_than`
+##### <a name="-redis--instance--replicaof"></a>`replicaof`
 
-Data type: `Integer[0]`
+Data type: `Optional[String[1]]`
+
+Use replicaof to make a Redis instance a copy of another Redis server.
+
+Default value: `$redis::replicaof`
+
+##### <a name="-redis--instance--slowlog_log_slower_than"></a>`slowlog_log_slower_than`
+
+Data type: `Integer[-1]`
 
 Tells Redis what is the execution time, in microseconds, to exceed in order
 for the command to get logged.
 
 Default value: `$redis::slowlog_log_slower_than`
 
-##### `slowlog_max_len`
+##### <a name="-redis--instance--slowlog_max_len"></a>`slowlog_max_len`
 
 Data type: `Integer[0]`
 
@@ -1766,7 +2586,7 @@ to get logged.
 
 Default value: `$redis::slowlog_max_len`
 
-##### `stop_writes_on_bgsave_error`
+##### <a name="-redis--instance--stop_writes_on_bgsave_error"></a>`stop_writes_on_bgsave_error`
 
 Data type: `Boolean`
 
@@ -1775,7 +2595,7 @@ are problems with disk, permissions, and so forth.
 
 Default value: `$redis::stop_writes_on_bgsave_error`
 
-##### `syslog_enabled`
+##### <a name="-redis--instance--syslog_enabled"></a>`syslog_enabled`
 
 Data type: `Boolean`
 
@@ -1783,7 +2603,7 @@ Enable/disable logging to the system logger.
 
 Default value: `$redis::syslog_enabled`
 
-##### `syslog_facility`
+##### <a name="-redis--instance--syslog_facility"></a>`syslog_facility`
 
 Data type: `Optional[String[1]]`
 
@@ -1791,7 +2611,7 @@ Specify the syslog facility. Must be USER or between LOCAL0-LOCAL7.
 
 Default value: `$redis::syslog_facility`
 
-##### `tcp_backlog`
+##### <a name="-redis--instance--tcp_backlog"></a>`tcp_backlog`
 
 Data type: `Integer[0]`
 
@@ -1799,7 +2619,7 @@ Sets the TCP backlog
 
 Default value: `$redis::tcp_backlog`
 
-##### `tcp_keepalive`
+##### <a name="-redis--instance--tcp_keepalive"></a>`tcp_keepalive`
 
 Data type: `Integer[0]`
 
@@ -1807,7 +2627,7 @@ TCP keepalive.
 
 Default value: `$redis::tcp_keepalive`
 
-##### `timeout`
+##### <a name="-redis--instance--timeout"></a>`timeout`
 
 Data type: `Integer[0]`
 
@@ -1815,7 +2635,103 @@ Close the connection after a client is idle for N seconds (0 to disable).
 
 Default value: `$redis::timeout`
 
-##### `ulimit`
+##### <a name="-redis--instance--tls_port"></a>`tls_port`
+
+Data type: `Optional[Stdlib::Port]`
+
+Configure which TLS port to listen on.
+
+Default value: `$redis::tls_port`
+
+##### <a name="-redis--instance--tls_cert_file"></a>`tls_cert_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which X.509 certificate file to use for TLS connections.
+
+Default value: `$redis::tls_cert_file`
+
+##### <a name="-redis--instance--tls_key_file"></a>`tls_key_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which privaye key file to use for TLS connections.
+
+Default value: `$redis::tls_key_file`
+
+##### <a name="-redis--instance--tls_ca_cert_file"></a>`tls_ca_cert_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which X.509 CA certificate(s) bundle file to use.
+
+Default value: `$redis::tls_ca_cert_file`
+
+##### <a name="-redis--instance--tls_ca_cert_dir"></a>`tls_ca_cert_dir`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Specify which X.509 CA certificate(s) bundle directory to use.
+
+Default value: `$redis::tls_ca_cert_dir`
+
+##### <a name="-redis--instance--tls_auth_clients"></a>`tls_auth_clients`
+
+Data type: `Enum['yes', 'no', 'optional']`
+
+Specify if clients and replicas are required to authenticate using valid client side certificates.
+
+Default value: `$redis::tls_auth_clients`
+
+##### <a name="-redis--instance--tls_replication"></a>`tls_replication`
+
+Data type: `Boolean`
+
+Specify if TLS should be enabled on replication links.
+
+Default value: `$redis::tls_replication`
+
+##### <a name="-redis--instance--tls_cluster"></a>`tls_cluster`
+
+Data type: `Boolean`
+
+Specify if TLS should be used for the bus protocol.
+
+Default value: `$redis::tls_cluster`
+
+##### <a name="-redis--instance--tls_ciphers"></a>`tls_ciphers`
+
+Data type: `Optional[String[1]]`
+
+Configure allowed ciphers for TLS <= TLSv1.2.
+
+Default value: `$redis::tls_ciphers`
+
+##### <a name="-redis--instance--tls_ciphersuites"></a>`tls_ciphersuites`
+
+Data type: `Optional[String[1]]`
+
+Configure allowed TLSv1.3 ciphersuites.
+
+Default value: `$redis::tls_ciphersuites`
+
+##### <a name="-redis--instance--tls_protocols"></a>`tls_protocols`
+
+Data type: `Optional[String[1]]`
+
+Configure allowed TLS protocol versions.
+
+Default value: `$redis::tls_protocols`
+
+##### <a name="-redis--instance--tls_prefer_server_ciphers"></a>`tls_prefer_server_ciphers`
+
+Data type: `Optional[Boolean]`
+
+Specify if the server's preference should be used when choosing a cipher.
+
+Default value: `$redis::tls_prefer_server_ciphers`
+
+##### <a name="-redis--instance--ulimit"></a>`ulimit`
 
 Data type: `Integer[0]`
 
@@ -1823,23 +2739,32 @@ Limit the use of system-wide resources.
 
 Default value: `$redis::ulimit`
 
-##### `unixsocket`
+##### <a name="-redis--instance--ulimit_managed"></a>`ulimit_managed`
+
+Data type: `Boolean`
+
+Defines wheter the max number of open files for the
+systemd service unit is explicitly managed.
+
+Default value: `$redis::ulimit_managed`
+
+##### <a name="-redis--instance--unixsocket"></a>`unixsocket`
 
 Data type: `Variant[Stdlib::Absolutepath, Enum['']]`
 
 Define unix socket path
 
-Default value: `"/var/run/redis/redis-server-${name}.sock"`
+Default value: `"/var/run/${service_name}/redis.sock"`
 
-##### `unixsocketperm`
+##### <a name="-redis--instance--unixsocketperm"></a>`unixsocketperm`
 
-Data type: `Variant[Stdlib::Filemode , Enum['']]`
+Data type: `Variant[Stdlib::Filemode, Enum['']]`
 
 Define unix socket file permissions
 
 Default value: `$redis::unixsocketperm`
 
-##### `workdir`
+##### <a name="-redis--instance--workdir"></a>`workdir`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -1848,7 +2773,7 @@ above using the 'dbfilename' configuration directive.
 
 Default value: `"${redis::workdir}/redis-server-${name}"`
 
-##### `workdir_mode`
+##### <a name="-redis--instance--workdir_mode"></a>`workdir_mode`
 
 Data type: `Stdlib::Filemode`
 
@@ -1856,7 +2781,7 @@ Adjust mode for data directory.
 
 Default value: `$redis::workdir_mode`
 
-##### `zset_max_ziplist_entries`
+##### <a name="-redis--instance--zset_max_ziplist_entries"></a>`zset_max_ziplist_entries`
 
 Data type: `Integer[0]`
 
@@ -1864,7 +2789,7 @@ Set max entries for sorted sets.
 
 Default value: `$redis::zset_max_ziplist_entries`
 
-##### `zset_max_ziplist_value`
+##### <a name="-redis--instance--zset_max_ziplist_value"></a>`zset_max_ziplist_value`
 
 Data type: `Integer[0]`
 
@@ -1872,7 +2797,7 @@ Set max values for sorted sets.
 
 Default value: `$redis::zset_max_ziplist_value`
 
-##### `cluster_enabled`
+##### <a name="-redis--instance--cluster_enabled"></a>`cluster_enabled`
 
 Data type: `Boolean`
 
@@ -1880,7 +2805,7 @@ Enables redis 3.0 cluster functionality
 
 Default value: `$redis::cluster_enabled`
 
-##### `cluster_config_file`
+##### <a name="-redis--instance--cluster_config_file"></a>`cluster_config_file`
 
 Data type: `String[1]`
 
@@ -1889,7 +2814,7 @@ touched by humans.  Only set if cluster_enabled is true
 
 Default value: `$redis::cluster_config_file`
 
-##### `cluster_node_timeout`
+##### <a name="-redis--instance--cluster_node_timeout"></a>`cluster_node_timeout`
 
 Data type: `Integer[1]`
 
@@ -1897,7 +2822,7 @@ Node timeout. Only set if cluster_enabled is true
 
 Default value: `$redis::cluster_node_timeout`
 
-##### `cluster_slave_validity_factor`
+##### <a name="-redis--instance--cluster_slave_validity_factor"></a>`cluster_slave_validity_factor`
 
 Data type: `Integer[0]`
 
@@ -1906,7 +2831,7 @@ master Only set if cluster_enabled is true
 
 Default value: `$redis::cluster_slave_validity_factor`
 
-##### `cluster_require_full_coverage`
+##### <a name="-redis--instance--cluster_require_full_coverage"></a>`cluster_require_full_coverage`
 
 Data type: `Boolean`
 
@@ -1915,7 +2840,7 @@ of keys can be processed Only set if cluster_enabled is true
 
 Default value: `$redis::cluster_require_full_coverage`
 
-##### `cluster_migration_barrier`
+##### <a name="-redis--instance--cluster_migration_barrier"></a>`cluster_migration_barrier`
 
 Data type: `Integer[0]`
 
@@ -1925,7 +2850,131 @@ set if cluster_enabled is true
 
 Default value: `$redis::cluster_migration_barrier`
 
-##### `output_buffer_limit_slave`
+##### <a name="-redis--instance--io_threads"></a>`io_threads`
+
+Data type: `Optional[Integer[1]]`
+
+Number of threads to handle IO operations in Redis
+
+Default value: `$redis::io_threads`
+
+##### <a name="-redis--instance--io_threads_do_reads"></a>`io_threads_do_reads`
+
+Data type: `Optional[Boolean]`
+
+Enabled/disable io_threads to handle reads
+
+Default value: `$redis::io_threads_do_reads`
+
+##### <a name="-redis--instance--cluster_allow_reads_when_down"></a>`cluster_allow_reads_when_down`
+
+Data type: `Optional[Boolean]`
+
+Allows nodes to serve read data while cluster status is down
+
+Default value: `$redis::cluster_allow_reads_when_down`
+
+##### <a name="-redis--instance--cluster_replica_no_failover"></a>`cluster_replica_no_failover`
+
+Data type: `Optional[Boolean]`
+
+Disabled automatic failover for replica
+
+Default value: `$redis::cluster_replica_no_failover`
+
+##### <a name="-redis--instance--dynamic_hz"></a>`dynamic_hz`
+
+Data type: `Optional[Boolean]`
+
+When dynamic HZ is enabled, the actual configured HZ will be used
+as a baseline, but multiples of the configured HZ value will be actually
+used as needed once more clients are connected.
+
+Default value: `$redis::dynamic_hz`
+
+##### <a name="-redis--instance--activedefrag"></a>`activedefrag`
+
+Data type: `Optional[Boolean]`
+
+Enable/disable active defragmentation
+
+Default value: `$redis::activedefrag`
+
+##### <a name="-redis--instance--active_defrag_ignore_bytes"></a>`active_defrag_ignore_bytes`
+
+Data type: `String[1]`
+
+Minimum amount of fragmentation waste to start active defrag
+Only set if activedefrag is true
+
+Default value: `$redis::active_defrag_ignore_bytes`
+
+##### <a name="-redis--instance--active_defrag_threshold_lower"></a>`active_defrag_threshold_lower`
+
+Data type: `Integer[1, 100]`
+
+Minimum percentage of fragmentation to start active defrag
+Only set if activedefrag is true
+
+Default value: `$redis::active_defrag_threshold_lower`
+
+##### <a name="-redis--instance--active_defrag_threshold_upper"></a>`active_defrag_threshold_upper`
+
+Data type: `Integer[1, 100]`
+
+Maximum percentage of fragmentation at which we use maximum effort
+Only set if activedefrag is true
+
+Default value: `$redis::active_defrag_threshold_upper`
+
+##### <a name="-redis--instance--active_defrag_cycle_min"></a>`active_defrag_cycle_min`
+
+Data type: `Integer[1, 100]`
+
+Minimal effort for defrag in CPU percentage, to be used when the lower
+threshold is reached
+Only set if activedefrag is true
+
+Default value: `$redis::active_defrag_cycle_min`
+
+##### <a name="-redis--instance--active_defrag_cycle_max"></a>`active_defrag_cycle_max`
+
+Data type: `Integer[1, 100]`
+
+Maximal effort for defrag in CPU percentage, to be used when the upper
+threshold is reached
+Only set if activedefrag is true
+
+Default value: `$redis::active_defrag_cycle_max`
+
+##### <a name="-redis--instance--active_defrag_max_scan_fields"></a>`active_defrag_max_scan_fields`
+
+Data type: `Integer[1]`
+
+Maximum number of set/hash/zset/list fields that will be processed from
+the main dictionary scan
+Only set if activedefrag is true
+
+Default value: `$redis::active_defrag_max_scan_fields`
+
+##### <a name="-redis--instance--jemalloc_bg_thread"></a>`jemalloc_bg_thread`
+
+Data type: `Optional[Boolean]`
+
+Jemalloc background thread for purging will be enabled by default
+
+Default value: `$redis::jemalloc_bg_thread`
+
+##### <a name="-redis--instance--rdb_save_incremental_fsync"></a>`rdb_save_incremental_fsync`
+
+Data type: `Optional[Boolean]`
+
+When redis saves RDB file, if the following option is enabled
+the file will be fsync-ed every 32 MB of data generated.
+
+Default value: `$redis::rdb_save_incremental_fsync`
+
+##### <a name="-redis--instance--output_buffer_limit_slave"></a>`output_buffer_limit_slave`
 
 Data type: `String[1]`
 
@@ -1933,7 +2982,7 @@ Data type: `String[1]`
 
 Default value: `$redis::output_buffer_limit_slave`
 
-##### `output_buffer_limit_pubsub`
+##### <a name="-redis--instance--output_buffer_limit_pubsub"></a>`output_buffer_limit_pubsub`
 
 Data type: `String[1]`
 
@@ -1941,7 +2990,7 @@ Data type: `String[1]`
 
 Default value: `$redis::output_buffer_limit_pubsub`
 
-##### `managed_by_cluster_manager`
+##### <a name="-redis--instance--managed_by_cluster_manager"></a>`managed_by_cluster_manager`
 
 Data type: `Boolean`
 
@@ -1949,45 +2998,45 @@ Data type: `Boolean`
 
 Default value: `$redis::managed_by_cluster_manager`
 
-##### `manage_service_file`
+##### <a name="-redis--instance--manage_service_file"></a>`manage_service_file`
 
 Data type: `Boolean`
 
 
 
-Default value: ``true``
+Default value: `true`
 
 ## Functions
 
-### `redis::get`
+### <a name="redis--get"></a>`redis::get`
 
 Type: Ruby 4.x API
 
-Takes two arguments with an optional third. The first being a string
-value of the key to be looked up, the second is the URL to the Redis service
-and the third optional argument is a default value to be used if the lookup
-fails.
+Returns the value of the key being looked up or `undef` if the key does not exist.
 
-example usage
-```
+#### Examples
+
+##### Get the version
+
+```puppet
 $version = redis::get('version.myapp', 'redis://redis.example.com:6379')
 $version_with_default = redis::get('version.myapp', 'redis://redis.example.com:6379', $::myapp_version)
 ```
 
 #### `redis::get(String[1] $key, Redis::RedisUrl $url, Optional[String] $default)`
 
-Takes two arguments with an optional third. The first being a string
-value of the key to be looked up, the second is the URL to the Redis service
-and the third optional argument is a default value to be used if the lookup
-fails.
+The redis::get function.
 
-example usage
-```
+Returns: `Optional[String]` Returns the value of the key from Redis
+
+##### Examples
+
+###### Get the version
+
+```puppet
 $version = redis::get('version.myapp', 'redis://redis.example.com:6379')
 $version_with_default = redis::get('version.myapp', 'redis://redis.example.com:6379', $::myapp_version)
 ```
-
-Returns: `Optional[String]` Returns the value of the key from Redis
 
 ##### `key`
 
@@ -2009,7 +3058,7 @@ The value to return if the key is not found or the connection to Redis fails
 
 ## Data types
 
-### `Redis::LogLevel`
+### <a name="Redis--LogLevel"></a>`Redis::LogLevel`
 
 This can be one of:
 * debug (a lot of information, useful for development/testing)
@@ -2019,7 +3068,21 @@ This can be one of:
 
 Alias of `Enum['debug', 'verbose', 'notice', 'warning']`
 
-### `Redis::RedisUrl`
+### <a name="Redis--MemoryPolicy"></a>`Redis::MemoryPolicy`
+
+This can be one of:
+* volatile-lru (Evict using approximated LRU, only keys with an expire set)
+* allkeys-lru (Evict any key using approximated LRU)
+* volatile-lfu (Evict using approximated LFU, only keys with an expire set)
+* allkeys-lfu (Evict any key using approximated LFU)
+* volatile-random (Remove a random key having an expire set)
+* allkeys-random (Remove a random key, any key)
+* volatile-ttl (Remove the key with the nearest expire time (minor TTL)
+* noeviction (Don't evict anything, just return an error on write operations)
+
+Alias of `Enum['volatile-lru', 'allkeys-lru', 'volatile-lfu', 'allkeys-lfu', 'volatile-random', 'allkeys-random', 'volatile-ttl', 'noeviction']`
+
+### <a name="Redis--RedisUrl"></a>`Redis::RedisUrl`
 
 The Redis::RedisUrl data type.
 
@@ -2027,7 +3090,7 @@ Alias of `Pattern[/(^redis:\/\/)/]`
 
 ## Tasks
 
-### `redis_cli`
+### <a name="redis_cli"></a>`redis_cli`
 
 Executes a redis-cli command on the target system
 

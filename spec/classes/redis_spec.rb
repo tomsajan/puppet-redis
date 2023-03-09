@@ -1,23 +1,30 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
+# rubocop:disable RSpec/MultipleMemoizedHelpers
 describe 'redis' do
-  let(:service_file) { "/etc/systemd/system/#{service_name}.service" }
-  let(:package_name) { manifest_vars[:package_name] }
-  let(:service_name) { manifest_vars[:service_name] }
-  let(:config_file) { manifest_vars[:config_file] }
-  let(:config_file_orig) { manifest_vars[:config_file_orig] }
+  let(:package_name) { facts[:os]['family'] == 'Debian' ? 'redis-server' : 'redis' }
+  let(:service_name) { package_name }
+  let(:config_file) do
+    case facts[:os]['family']
+    when 'Archlinux', 'Debian'
+      '/etc/redis/redis.conf'
+    when 'FreeBSD'
+      '/usr/local/etc/redis.conf'
+    when 'RedHat'
+      if facts[:os]['release']['major'].to_i > 8
+        '/etc/redis/redis.conf'
+      else
+        '/etc/redis.conf'
+      end
+    end
+  end
+  let(:config_file_orig) { "#{config_file}.puppet" }
 
   on_supported_os.each do |os, facts|
     context "on #{os}" do
       let(:facts) { facts }
-
-      if facts[:operatingsystem] == 'Ubuntu' && facts[:operatingsystemmajrelease] == '16.04'
-        let(:systemd) { '' }
-        let(:servicetype) { 'forking' }
-      else
-        let(:systemd) { ' --supervised systemd' }
-        let(:servicetype) { 'notify' }
-      end
 
       describe 'without parameters' do
         it { is_expected.to compile.with_all_deps }
@@ -27,7 +34,7 @@ describe 'redis' do
         it { is_expected.to contain_class('redis::config') }
         it { is_expected.to contain_class('redis::service') }
 
-        it { is_expected.to contain_package(package_name).with_ensure('present') }
+        it { is_expected.to contain_package(package_name).with_ensure('installed') }
 
         it do
           is_expected.to contain_file(config_file_orig).
@@ -35,21 +42,16 @@ describe 'redis' do
             with_content(%r{logfile /var/log/redis/redis\.log}).
             without_content(%r{undef})
 
-          if facts[:osfamily] == 'FreeBSD'
+          if facts[:os]['family'] == 'FreeBSD'
             is_expected.to contain_file(config_file_orig).
               with_content(%r{dir /var/db/redis}).
               with_content(%r{pidfile /var/run/redis/redis\.pid})
           end
         end
 
-        it do
-          is_expected.to contain_service(service_name).with(
-            'ensure'     => 'running',
-            'enable'     => 'true',
-          )
-        end
+        it { is_expected.to contain_service(service_name).with_ensure('running').with_enable('true') }
 
-        context 'with SCL', if: facts[:osfamily] == 'RedHat' && facts[:operatingsystemmajrelease] < '8' do
+        context 'with SCL', if: facts[:os]['family'] == 'RedHat' && facts[:os]['release']['major'].to_i < 8 do
           let(:pre_condition) do
             <<-PUPPET
             class { 'redis::globals':
@@ -59,6 +61,7 @@ describe 'redis' do
           end
 
           it { is_expected.to compile.with_all_deps }
+
           it do
             is_expected.to create_class('redis').
               with_package_name('rh-redis5-redis').
@@ -66,12 +69,32 @@ describe 'redis' do
               with_service_name('rh-redis5-redis')
           end
 
-          context 'manage_repo => true', if: facts[:operatingsystem] == 'CentOS' do
+          context 'manage_repo => true' do
             let(:params) { { manage_repo: true } }
 
             it { is_expected.to compile.with_all_deps }
-            it { is_expected.to contain_package('centos-release-scl-rh') }
+
+            if facts[:operatingsystem] == 'CentOS'
+              it { is_expected.to contain_package('centos-release-scl-rh') }
+            else
+              it { is_expected.not_to contain_package('centos-release-scl-rh') }
+            end
           end
+        end
+
+        describe 'with manage_dnf_module true', if: facts[:os]['family'] == 'RedHat' && facts[:os]['release']['major'].to_i == 8 do
+          let(:pre_condition) do
+            <<-PUPPET
+            class { 'redis':
+              manage_package    => true,
+              dnf_module_stream => '6',
+            }
+            PUPPET
+          end
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_package('redis dnf module').with_ensure('6').that_comes_before('Package[redis]') }
+          it { is_expected.to contain_package('redis').with_name('redis') }
         end
       end
 
@@ -79,12 +102,13 @@ describe 'redis' do
         let(:params) { { managed_by_cluster_manager: true } }
 
         it { is_expected.to compile.with_all_deps }
+
         it do
           is_expected.to contain_file('/etc/security/limits.d/redis.conf').with(
-            'ensure'  => 'file',
-            'owner'   => 'root',
-            'group'   => 'root',
-            'mode'    => '0644',
+            'ensure' => 'file',
+            'owner' => 'root',
+            'group' => 'root',
+            'mode' => '0644',
             'content' => "redis soft nofile 65536\nredis hard nofile 65536\n"
           )
         end
@@ -93,41 +117,43 @@ describe 'redis' do
           let(:params) { super().merge(service_manage: false, notify_service: false) }
 
           it { is_expected.to compile.with_all_deps }
+
           it do
             is_expected.to contain_file('/etc/security/limits.d/redis.conf').with(
-              'ensure'  => 'file',
-              'owner'   => 'root',
-              'group'   => 'root',
-              'mode'    => '0644',
+              'ensure' => 'file',
+              'owner' => 'root',
+              'group' => 'root',
+              'mode' => '0644',
               'content' => "redis soft nofile 65536\nredis hard nofile 65536\n"
             )
           end
         end
       end
 
-      context 'with ulimit' do
-        let(:params) { { ulimit: 7777 } }
+      describe 'with parameter ulimit_managed' do
+        context 'true' do
+          let(:params) { { ulimit: 7777, ulimit_managed: true } }
 
-        it { is_expected.to compile.with_all_deps }
-        it do
-          is_expected.to contain_file("/etc/systemd/system/#{service_name}.service.d/limit.conf").
-            with_ensure('file').
-            with_owner('root').
-            with_group('root').
-            with_mode('0444')
-          # Only necessary for Puppet < 6.1.0,
-          # See https://github.com/puppetlabs/puppet/commit/f8d5c60ddb130c6429ff12736bfdb4ae669a9fd4
-          if Puppet.version < '6.1'
-            is_expected.to contain_augeas('Systemd redis ulimit').
-              with_incl("/etc/systemd/system/#{service_name}.service.d/limit.conf").
-              with_lens('Systemd.lns').
-              with_changes(['defnode nofile Service/LimitNOFILE ""', 'set $nofile/value "7777"']).
-              that_notifies('Class[systemd::systemctl::daemon_reload]')
-          else
-            is_expected.to contain_augeas('Systemd redis ulimit').
-              with_incl("/etc/systemd/system/#{service_name}.service.d/limit.conf").
-              with_lens('Systemd.lns').
-              with_changes(['defnode nofile Service/LimitNOFILE ""', 'set $nofile/value "7777"'])
+          it { is_expected.to compile.with_all_deps }
+
+          it do
+            is_expected.to contain_file("/etc/systemd/system/#{service_name}.service.d/limit.conf").
+              with_ensure('absent')
+
+            is_expected.to contain_systemd__service_limits("#{service_name}.service").
+              with_limits({ 'LimitNOFILE' => 7777 }).
+              with_restart_service(false).
+              with_ensure('present')
+          end
+        end
+
+        context 'false' do
+          let(:params) { { ulimit_managed: false } }
+
+          it { is_expected.to compile.with_all_deps }
+
+          it do
+            is_expected.not_to contain_systemd__service_limits("#{service_name}.service")
           end
         end
       end
@@ -218,11 +244,13 @@ describe 'redis' do
             is_expected.to contain_file(config_file_orig).with_content(%r{bind 127\.0\.0\.1$})
           end
         end
+
         context 'with a single IP address' do
           let(:params) { { bind: '10.0.0.1' } }
 
           it { is_expected.to contain_file(config_file_orig).with_content(%r{bind 10\.0\.0\.1$}) }
         end
+
         context 'with array of IP addresses' do
           let(:params) do
             {
@@ -232,6 +260,7 @@ describe 'redis' do
 
           it { is_expected.to contain_file(config_file_orig).with_content(%r{bind 127\.0\.0\.1 ::1}) }
         end
+
         context 'with empty array' do
           let(:params) { { bind: [] } }
 
@@ -472,11 +501,20 @@ describe 'redis' do
       describe 'with parameter: manage_repo' do
         let(:params) { { manage_repo: true } }
 
-        case facts[:operatingsystem]
-        when 'Ubuntu'
-          it { is_expected.to contain_apt__ppa('ppa:chris-lea/redis-server') }
-        when 'RedHat', 'CentOS', 'Scientific', 'OEL', 'Amazon'
+        if facts[:osfamily] == 'RedHat' && facts[:os]['release']['major'].to_i <= 7
           it { is_expected.to contain_class('epel') }
+        else
+          it { is_expected.not_to contain_class('epel') }
+        end
+
+        describe 'with ppa' do
+          let(:params) { super().merge(ppa_repo: 'ppa:rwky/redis') }
+
+          if facts[:operatingsystem] == 'Ubuntu'
+            it { is_expected.to contain_apt__ppa('ppa:rwky/redis') }
+          else
+            it { is_expected.not_to contain_apt__ppa('ppa:rwky/redis') }
+          end
         end
       end
 
@@ -553,13 +591,13 @@ describe 'redis' do
       describe 'with parameter maxmemory_policy' do
         let(:params) do
           {
-            maxmemory_policy: '_VALUE_'
+            maxmemory_policy: 'noeviction'
           }
         end
 
         it {
           is_expected.to contain_file(config_file_orig).with(
-            'content' => %r{maxmemory-policy.*_VALUE_}
+            'content' => %r{maxmemory-policy.*noeviction}
           )
         }
       end
@@ -567,13 +605,13 @@ describe 'redis' do
       describe 'with parameter maxmemory_samples' do
         let(:params) do
           {
-            maxmemory_samples: '_VALUE_'
+            maxmemory_samples: 9
           }
         end
 
         it {
           is_expected.to contain_file(config_file_orig).with(
-            'content' => %r{maxmemory-samples.*_VALUE_}
+            'content' => %r{maxmemory-samples.*9}
           )
         }
       end
@@ -695,13 +733,7 @@ describe 'redis' do
           }
         end
 
-        it do
-          if facts[:operatingsystem] == 'Ubuntu' && facts[:operatingsystemmajrelease] == '16.04'
-            is_expected.not_to contain_file(config_file_orig).with_content(%r{protected-mode})
-          else
-            is_expected.to contain_file(config_file_orig).with_content(%r{^protected-mode no$})
-          end
-        end
+        it { is_expected.to contain_file(config_file_orig).with_content(%r{^protected-mode no$}) }
       end
 
       describe 'with parameter hll_sparse_max_bytes' do
@@ -764,21 +796,24 @@ describe 'redis' do
         context 'with a single rename' do
           let(:params) do
             {
-              rename_commands: { CONFIG: "\"\"" }
+              rename_commands: { CONFIG: '""' }
             }
           end
+
           it {
             is_expected.to contain_file(config_file_orig).with(
               'content' => %r{^rename-command CONFIG ""$}
             )
           }
         end
+
         context 'with multiple renames' do
           let(:params) do
             {
-              rename_commands: { CONFIG: "\"\"", RENAME: "\"\"" }
+              rename_commands: { CONFIG: '""', RENAME: '""' }
             }
           end
+
           it {
             is_expected.to contain_file(config_file_orig).with(
               'content' => %r{^rename-command CONFIG ""$}
@@ -788,12 +823,14 @@ describe 'redis' do
             )
           }
         end
+
         context 'with empty hash' do
           let(:params) do
             {
-              "rename_commands" => {}
+              'rename_commands' => {}
             }
           end
+
           it { is_expected.not_to contain_file(config_file_orig).with_content(%r{^rename-command}) }
         end
       end
@@ -868,6 +905,34 @@ describe 'redis' do
         }
       end
 
+      describe 'with parameter repl_announce_ip' do
+        let(:params) do
+          {
+            repl_announce_ip: 'my.hostname.name.or.ip'
+          }
+        end
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{replica-announce-ip.*my\.hostname\.name\.or\.ip}
+          )
+        }
+      end
+
+      describe 'with parameter repl_announce_port' do
+        let(:params) do
+          {
+            repl_announce_port: 1234
+          }
+        end
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{replica-announce-port.*1234}
+          )
+        }
+      end
+
       describe 'with parameter requirepass' do
         let(:params) do
           {
@@ -923,12 +988,13 @@ describe 'redis' do
 
             it { is_expected.to contain_file(config_file_orig).with('content' => %r{save 900 1}) }
             it { is_expected.to contain_file(config_file_orig).with('content' => %r{save 300 10}) }
+
             it {
               is_expected.to contain_file(config_file_orig).with('content' => %r{save 60 10000})
             }
           end
 
-          context 'default' do
+          context 'and with save_db_to_disk_interval' do
             let(:params) do
               {
                 save_db_to_disk: true,
@@ -938,6 +1004,7 @@ describe 'redis' do
 
             it { is_expected.to contain_file(config_file_orig).with('content' => %r{save 900 2}) }
             it { is_expected.to contain_file(config_file_orig).with('content' => %r{save 300 11}) }
+
             it {
               is_expected.to contain_file(config_file_orig).with('content' => %r{save 60 10011})
             }
@@ -945,17 +1012,15 @@ describe 'redis' do
         end
 
         context 'with save_db_to_disk false' do
-          context 'default' do
-            let(:params) do
-              {
-                save_db_to_disk: false
-              }
-            end
-
-            it { is_expected.to contain_file(config_file_orig).without('content' => %r{save 900 1}) }
-            it { is_expected.to contain_file(config_file_orig).without('content' => %r{save 300 10}) }
-            it { is_expected.to contain_file(config_file_orig).without('content' => %r{save 60 10000}) }
+          let(:params) do
+            {
+              save_db_to_disk: false
+            }
           end
+
+          it { is_expected.to contain_file(config_file_orig).without('content' => %r{save 900 1}) }
+          it { is_expected.to contain_file(config_file_orig).without('content' => %r{save 300 10}) }
+          it { is_expected.to contain_file(config_file_orig).without('content' => %r{save 60 10000}) }
         end
       end
 
@@ -1083,18 +1148,64 @@ describe 'redis' do
         end
       end
 
-      describe 'with parameter slowlog_log_slower_than' do
-        let(:params) do
-          {
-            slowlog_log_slower_than: 42
+      describe 'with parameter: replicaof' do
+        context 'binding to localhost' do
+          let(:params) do
+            {
+              bind: '127.0.0.1',
+              replicaof: '_VALUE_'
+            }
+          end
+
+          it {
+            is_expected.to contain_file(config_file_orig).with(
+              'content' => %r{^replicaof _VALUE_}
+            )
           }
         end
 
-        it {
-          is_expected.to contain_file(config_file_orig).with(
-            'content' => %r{^slowlog-log-slower-than 42$}
-          )
-        }
+        context 'binding to external ip' do
+          let(:params) do
+            {
+              bind: '10.0.0.1',
+              replicaof: '_VALUE_'
+            }
+          end
+
+          it {
+            is_expected.to contain_file(config_file_orig).with(
+              'content' => %r{^replicaof _VALUE_}
+            )
+          }
+        end
+      end
+
+      describe 'with parameter slowlog_log_slower_than' do
+        context 'set to a value great or equal to zero' do
+          let(:params) do
+            {
+              slowlog_log_slower_than: 42
+            }
+          end
+
+          it {
+            is_expected.to contain_file(config_file_orig).with(
+              'content' => %r{^slowlog-log-slower-than 42$}
+            )
+          }
+        end
+
+        context 'set to -1 (disabled)' do
+          let(:params) do
+            { slowlog_log_slower_than: -1 }
+          end
+
+          it {
+            is_expected.to contain_file(config_file_orig).with(
+              'content' => %r{^slowlog-log-slower-than -1$}
+            )
+          }
+        end
       end
 
       describe 'with parameter slowlog_max_len' do
@@ -1281,7 +1392,7 @@ describe 'redis' do
         }
       end
 
-      describe 'with parameter cluster_config_file' do
+      describe 'with parameter cluster_node_timeout' do
         let(:params) do
           {
             cluster_enabled: true,
@@ -1296,7 +1407,7 @@ describe 'redis' do
         }
       end
 
-      describe 'with parameter cluster_config_file' do
+      describe 'with parameter cluster_slave_validity_factor' do
         let(:params) do
           {
             cluster_enabled: true,
@@ -1311,7 +1422,7 @@ describe 'redis' do
         }
       end
 
-      describe 'with parameter cluster_config_file' do
+      describe 'with parameter cluster_require_full_coverage true' do
         let(:params) do
           {
             cluster_enabled: true,
@@ -1326,7 +1437,7 @@ describe 'redis' do
         }
       end
 
-      describe 'with parameter cluster_config_file' do
+      describe 'with parameter cluster_require_full_coverage false' do
         let(:params) do
           {
             cluster_enabled: true,
@@ -1337,7 +1448,7 @@ describe 'redis' do
         it { is_expected.to contain_file(config_file_orig).with_content(%r{cluster-require-full-coverage.*no}) }
       end
 
-      describe 'with parameter cluster_config_file' do
+      describe 'with parameter cluster_migration_barrier' do
         let(:params) do
           {
             cluster_enabled: true,
@@ -1348,6 +1459,41 @@ describe 'redis' do
         it { is_expected.to contain_file(config_file_orig).with_content(%r{cluster-migration-barrier.*1}) }
       end
 
+      describe 'with TLS related parameters' do
+        let(:params) do
+          {
+            tls_port: 7777,
+            tls_cert_file: '/etc/ssl/certs/dummy.crt',
+            tls_key_file: '/etc/ssl/private/dummy.key',
+            tls_ca_cert_file: '/etc/ssl/certs/ca_bundle.pem',
+            tls_ca_cert_dir: '/etc/ssl/some/dir',
+            tls_auth_clients: 'no',
+            tls_replication: true,
+            tls_cluster: true,
+            tls_ciphers: 'DEFAULT:!MEDIUM',
+            tls_ciphersuites: 'TLS_CHACHA20_POLY1305_SHA256',
+            tls_protocols: 'TLSv1.2 TLSv1.3',
+            tls_prefer_server_ciphers: true
+          }
+        end
+
+        it do
+          is_expected.to contain_file(config_file_orig).
+            with_content(%r{^tls-port 7777$}).
+            with_content(%r{^tls-cert-file\s*/etc/ssl/certs/dummy\.crt$}).
+            with_content(%r{^tls-key-file\s*/etc/ssl/private/dummy\.key$}).
+            with_content(%r{^tls-ca-cert-file\s*/etc/ssl/certs/ca_bundle\.pem$}).
+            with_content(%r{^tls-ca-cert-dir\s*/etc/ssl/some/dir$}).
+            with_content(%r{^tls-auth-clients\s*no$}).
+            with_content(%r{^tls-replication\s*yes$}).
+            with_content(%r{^tls-cluster\s*yes$}).
+            with_content(%r{^tls-ciphers\s*DEFAULT:!MEDIUM$}).
+            with_content(%r{^tls-ciphersuites\s*TLS_CHACHA20_POLY1305_SHA256$}).
+            with_content(%r{^tls-protocols\s*"TLSv1\.2\sTLSv1\.3"$}).
+            with_content(%r{^tls-prefer-server-ciphers\s*yes$})
+        end
+      end
+
       describe 'with parameter manage_service_file' do
         let(:params) do
           {
@@ -1355,7 +1501,7 @@ describe 'redis' do
           }
         end
 
-        it { is_expected.to contain_file(service_file) }
+        it { is_expected.to contain_systemd__unit_file("#{service_name}.service") }
 
         it do
           content = <<-END.gsub(%r{^\s+\|}, '')
@@ -1366,10 +1512,10 @@ describe 'redis' do
             |Wants=network-online.target
             |
             |[Service]
-            |RuntimeDirectory=redis
+            |RuntimeDirectory=#{service_name}
             |RuntimeDirectoryMode=2755
-            |Type=#{servicetype}
-            |ExecStart=/usr/bin/redis-server #{config_file}#{systemd}
+            |Type=notify
+            |ExecStart=/usr/bin/redis-server #{config_file} --supervised systemd --daemonize no
             |ExecStop=/usr/bin/redis-cli -p 6379 shutdown
             |Restart=always
             |User=redis
@@ -1380,41 +1526,183 @@ describe 'redis' do
             |WantedBy=multi-user.target
           END
 
-          is_expected.to contain_file(service_file).with_content(content)
+          is_expected.to contain_systemd__unit_file("#{service_name}.service").with_content(content)
         end
       end
 
-      describe 'with parameter manage_service_file' do
+      describe 'with parameter manage_service_file set to false' do
         let(:params) do
           {
             manage_service_file: false
           }
         end
 
-        it { is_expected.not_to contain_file(service_file) }
+        it { is_expected.not_to contain_systemd__unit_file("#{service_name}.service") }
       end
 
-      context 'when $::redis_server_version fact is not present' do
-        let(:facts) { super().merge(redis_server_version: nil) }
-
-        context 'when package_ensure is version (3.2.1)' do
-          let(:params) { { package_ensure: '3.2.1' } }
-
-          it { is_expected.to contain_file(config_file_orig).with_content(%r{^protected-mode}) }
+      describe 'with module loading' do
+        let(:params) do
+          {
+            modules: ['/root/nullmodule.so'],
+            service_manage: false
+          }
         end
 
-        context 'when package_ensure is a newer version(4.0-rc3) (older features enabled)' do
-          let(:params) { { package_ensure: '4.0-rc3' } }
-
-          it { is_expected.to contain_file(config_file_orig).with_content(%r{^protected-mode}) }
-        end
+        it {
+          is_expected.to contain_file(config_file_orig).
+            with_content(%r{^loadmodule /root/nullmodule.so$})
+        }
       end
 
-      context 'when $::redis_server_version fact is present but a newer version (older features enabled)' do
-        let(:facts) { super().merge(redis_server_version: '3.2.1') }
+      describe 'test io-threads for redis6' do
+        let(:params) do
+          {
+            io_threads: 4
+          }
+        end
 
-        it { is_expected.to contain_file(config_file_orig).with_content(%r{^protected-mode}) }
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^io-threads 4$}
+          )
+        }
+      end
+
+      describe 'test io-threads-do-reads for redis6' do
+        let(:params) do
+          {
+            io_threads_do_reads: true,
+          }
+        end
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^io-threads-do-reads yes$}
+          )
+        }
+      end
+
+      describe 'test dynamic-hz for redis6' do
+        let(:params) do
+          {
+            dynamic_hz: true,
+          }
+        end
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^dynamic-hz yes$}
+          )
+        }
+      end
+
+      describe 'test activedefrag for redis6' do
+        let(:params) do
+          {
+            activedefrag: true,
+          }
+        end
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^activedefrag yes$}
+          )
+        }
+      end
+
+      describe 'test jemalloc-bg-thread for redis6' do
+        let(:params) do
+          {
+            jemalloc_bg_thread: true,
+          }
+        end
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^jemalloc-bg-thread yes$}
+          )
+        }
+      end
+
+      describe 'test activedefrag configuration for redis6' do
+        let(:params) do
+          {
+            activedefrag: true,
+            active_defrag_ignore_bytes: '200mb',
+            active_defrag_threshold_lower: 11,
+            active_defrag_threshold_upper: 99,
+            active_defrag_cycle_min: 7,
+            active_defrag_cycle_max: 23,
+            active_defrag_max_scan_fields: 1341,
+          }
+        end
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^activedefrag yes$}
+          )
+        }
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^active-defrag-ignore-bytes 200mb$}
+          )
+        }
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^active-defrag-threshold-lower 11$}
+          )
+        }
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^active-defrag-threshold-upper 99$}
+          )
+        }
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^active-defrag-cycle-min 7$}
+          )
+        }
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^active-defrag-cycle-max 23$}
+          )
+        }
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{^active-defrag-max-scan-fields 1341$}
+          )
+        }
+      end
+
+      describe 'test rdb-save-incremental-fsync for redis6' do
+        let(:params) do
+          {
+            rdb_save_incremental_fsync: true,
+          }
+        end
+
+        it { is_expected.to contain_file(config_file_orig).with('content' => %r{^rdb-save-incremental-fsync yes$}) }
+      end
+
+      describe 'test systemd service timeouts' do
+        let(:params) do
+          {
+            manage_service_file: true,
+            service_timeout_start: 600,
+            service_timeout_stop: 300,
+          }
+        end
+
+        it { is_expected.to contain_systemd__unit_file("#{service_name}.service").with('content' => %r{^TimeoutStartSec=600$}) }
+        it { is_expected.to contain_systemd__unit_file("#{service_name}.service").with('content' => %r{^TimeoutStopSec=300$}) }
       end
     end
   end
 end
+# rubocop:enable RSpec/MultipleMemoizedHelpers
